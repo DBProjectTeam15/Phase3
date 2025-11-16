@@ -1,6 +1,7 @@
 package knu.database.musebase.domain.manager.controller;
 
 import knu.database.musebase.dao.ArtistDAO;
+import knu.database.musebase.data.Artist;
 import knu.database.musebase.domain.manager.console.ManagerPageKey;
 import knu.database.musebase.domain.manager.auth.ManagerAuthService;
 import knu.database.musebase.domain.manager.auth.ManagerSession;
@@ -9,6 +10,8 @@ import knu.database.musebase.domain.manager.auth.ManagerSessionWrapper;
 import knu.database.musebase.exception.InvalidLoginStateException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import java.sql.SQLException;
 
 @RequiredArgsConstructor
 public class ArtistManageController implements PageController<ManagerPageKey> {
@@ -26,25 +29,61 @@ public class ArtistManageController implements PageController<ManagerPageKey> {
         System.out.println("\n--- 아티스트 관리 ---");
         System.out.println("관리자 ID: " + managerSessionWrapper.getManagerSession().getLoggedInNickname());
         System.out.println("1. 아티스트 정보 확인 [아티스트 ID]");
-        System.out.println("2. 아티스트 추가 [추가할 정보]");
-        System.out.println("3. 아티스트 수정 [아티스트 ID] [변화할 인자] [값]");
-        System.out.println("4. 아티스트 삭제 [아티스트 ID]");
+        System.out.println("2. 아티스트 추가 [이름] [성별]");
+        System.out.println("3. 아티스트 삭제 [아티스트 ID]");
         System.out.println("0. 돌아가기");
     }
 
     @Override
     public ManagerPageKey invoke(String[] commands) {
-        switch (commands[0]) {
-            case "1":
+        return switch (commands[0]) {
+            case "0" -> ManagerPageKey.MANAGER_MAIN;
+            case "1" -> {
+                System.out.println("아티스트 정보 출력\n");
+                long id = Long.parseLong(commands[1]);
+                Artist artist = artistDAO.findById(id).orElse(null);
 
-            case "2":
+                if (artist == null) {
+                    System.out.println("해당 ID의 아티스트가 없습니다.");
+                }
+                else {
+                    System.out.println(artist.getId() + ":" + artist.getName() + ":" + artist.getGender());
+                }
 
-            case "3":
+                yield ManagerPageKey.ARTIST_MANAGEMENT;
+            }
+            case "2" -> {
 
-            case "4":
+                System.out.println("아티스트 추가\n");
 
-            case "0":
-                return ManagerPageKey.MANAGER_MAIN;
-        }
+                Artist artist = new Artist(commands[1], commands[2]);
+                artist = artistDAO.save(artist);
+
+                if (artist == null) {
+                    System.out.println("아티스트 정보 저장에 실패했습니다.");
+                }
+                else {
+                    System.out.println("아티스트 정보 저장에 성공했습니다.");
+                    System.out.println(artist.getId() + ":" + artist.getName() + ":" + artist.getGender());
+                }
+
+                yield ManagerPageKey.ARTIST_MANAGEMENT;
+            }
+            case "3" -> {
+
+                System.out.println("아티스트 삭제\n");
+
+                long id = Long.parseLong(commands[1]);
+
+                long result = artistDAO.deleteById(id);
+
+                if (result == 1) System.out.println("아티스트 삭제에 성공했습니다.");
+                else System.out.println("아티스트 삭제에 실패했거나, 해당 아티스트가 없습니다.");
+
+                yield ManagerPageKey.ARTIST_MANAGEMENT;
+            }
+
+            default -> ManagerPageKey.ARTIST_MANAGEMENT;
+        };
     }
 }

@@ -2,6 +2,7 @@ package knu.database.musebase.dao;
 
 import knu.database.musebase.data.Artist;
 
+import knu.database.musebase.data.Song;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
@@ -98,6 +99,8 @@ public class ArtistDAO extends BasicDataAccessObjectImpl<Artist, Long> {
         }
     }
 
+
+
     @Override
     public List<Artist> findAll() {
         String sql = "SELECT * FROM ARTISTS";
@@ -115,6 +118,25 @@ public class ArtistDAO extends BasicDataAccessObjectImpl<Artist, Long> {
             log.error("Error finding all artists: " + ex.getMessage(), ex);
         }
         return artists;
+    }
+
+    public long deleteById(long id) {
+        String sql = "DELETE FROM ARTISTS WHERE Artist_id = ?";
+
+        try (Connection connection = getConnection();
+             PreparedStatement pstmt = connection.prepareStatement(sql)) {
+
+            pstmt.setLong(1, id);
+
+            // executeUpdate()는 영향을 받은 행의 수를 반환합니다.
+            // ID로 삭제하는 경우 0 (삭제 실패) 또는 1 (삭제 성공)이 됩니다.
+            return pstmt.executeUpdate();
+
+        } catch (SQLException ex) {
+            log.error("Error deleting artist by id {}: {}", id, ex.getMessage(), ex);
+            // 오류 발생 시 0을 반환
+            return 0;
+        }
     }
 
     /**
