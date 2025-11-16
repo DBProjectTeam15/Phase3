@@ -1,4 +1,4 @@
-package knu.database.musebase.domain.manager.entity;
+package knu.database.musebase.domain.manager.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,7 +1,7 @@
 package knu.database.musebase.domain.manager.dao;
 
 import knu.database.musebase.dao.BasicDataAccessObjectImpl;
-import knu.database.musebase.domain.manager.entity.Manager;
+import knu.database.musebase.domain.manager.data.Manager;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;

@@ -2,11 +2,9 @@ package knu.database.musebase.domain.manager.auth;
 
 import knu.database.musebase.crypto.PasswordEncryptor;
 import knu.database.musebase.domain.manager.dao.ManagerDAO;
-import knu.database.musebase.domain.manager.entity.Manager;
+import knu.database.musebase.domain.manager.data.Manager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Objects;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -20,8 +18,6 @@ public class ManagerAuthService {
      */
     public ManagerSession login(String username, String password) {
         String passwordHash = passwordEncryptor.getPasswordHash(password);
-
-        System.out.println(passwordHash);
 
         // DB 로부터 username 으로부터 가져와 비교
         Manager manager = managerDAO.findById(username).orElse(null);
