@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 public class ConsoleApplication {
-    public void run(ConsoleMode mode) throws IllegalArgumentException {
+    public void run(ConsoleMode mode) {
         if (mode == ConsoleMode.MANAGER) {
             runManager();
         }
@@ -30,11 +30,16 @@ public class ConsoleApplication {
         }
     }
 
+    private static void clearScreen() {
+        System.out.print("\u001B[H\u001B[2J");
+        System.out.flush();
+    }
+
     private void runManager() {
 
         // doing di
 
-        // applicaiton states
+        // application states
         ManagerPageKey managerPageKey = ManagerPageKey.MANAGER_MAIN;
         ManagerSessionWrapper managerSessionWrapper = new ManagerSessionWrapper();
 
@@ -53,32 +58,34 @@ public class ConsoleApplication {
 
         var pageControllers = new HashMap<ManagerPageKey, PageController<ManagerPageKey>>();
 
-        pageControllers.put(ManagerPageKey.ARTIST_MANAGEMENT, new ArtistManageController(managerAuthService, managerSessionWrapper));
+        pageControllers.put(ManagerPageKey.ARTIST_MANAGEMENT, new ArtistManageController(managerAuthService, managerSessionWrapper, artistDAO));
         pageControllers.put(ManagerPageKey.MANAGER_MAIN, new ManagerMainController(managerSessionWrapper, managerAuthService));
-        pageControllers.put(ManagerPageKey.PROVIDER_MANAGEMENT, new ProviderManageController(managerSessionWrapper));
+        pageControllers.put(ManagerPageKey.PROVIDER_MANAGEMENT, new ProviderManageController(managerSessionWrapper, providerDAO));
         pageControllers.put(ManagerPageKey.SONG_MANAGEMENT, new SongManageController(managerSessionWrapper));
-        pageControllers.put(ManagerPageKey.REQUEST_MANAGEMENT, new SongRequestManageController(managerSessionWrapper));
+        pageControllers.put(ManagerPageKey.REQUEST_MANAGEMENT, new SongRequestManageController(managerSessionWrapper, songRequestDAO));
         pageControllers.put(ManagerPageKey.ARTIST_DETAILS, null);
         pageControllers.put(ManagerPageKey.EXIT, null);
 
         Scanner scanner = new Scanner(System.in);
 
+        clearScreen();
 
         while (managerPageKey != ManagerPageKey.EXIT) {
             PageController<ManagerPageKey> pageController = pageControllers.get(managerPageKey);
 
-            System.out.println(managerPageKey);
+
+            System.out.println(managerPageKey.getDisplayTitle());
             try {
                 pageController.displayScreen();
-
             } catch (InvalidLoginStateException e) {
-                System.out.println(e.getMessage());
+                System.out.println(e.getMessage() + '\n');
                 managerPageKey = ManagerPageKey.MANAGER_MAIN;
                 continue;
             }
 
             String command = scanner.nextLine();
             managerPageKey = pageController.invoke(command.split(" "));
+            clearScreen();
         }
 
         scanner.close();
