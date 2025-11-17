@@ -14,14 +14,12 @@ import java.util.List;
 public abstract class PlaylistController implements PageController<PageKey> {
 
     private final PlaylistService playlistService;
-    private final SessionWrapper sessionWrapper;
 
 
     @Override
     public void displayScreen() throws InvalidLoginStateException {
         // playlistService 에서 받아와야할 플레이리스트들을 출력합니다.
         System.out.println("-- " + playlistService.getPlaylistName() + " --");
-        System.out.println("현재 유저 명 : " + sessionWrapper.getSession().getLoggedInNickname() + "\n");
 
         List<Playlist> playlists = playlistService.getPlaylists();
 

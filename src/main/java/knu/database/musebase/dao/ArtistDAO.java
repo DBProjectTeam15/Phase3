@@ -13,6 +13,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * CREATE TABLE ARTISTS (
@@ -119,6 +120,114 @@ public class ArtistDAO extends BasicDataAccessObjectImpl<Artist, Long> {
             // 오류 발생 시 0을 반환
             return 0;
         }
+    }
+
+    public int countArtists(String name, boolean nameExact, String gender, List<String> roles) {
+        List<Object> params = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT COUNT(DISTINCT a.Artist_id) AS total_count FROM ARTISTS a ");
+        List<String> whereConditions = new ArrayList<>();
+
+        if (roles != null && !roles.isEmpty()) {
+            sql.append("LEFT JOIN ART_TYPES at ON a.Artist_id = at.Artist_id ");
+            List<String> upperRoles = roles.stream().map(String::toUpperCase).collect(Collectors.toList());
+            String placeholders = upperRoles.stream().map(r -> "?").collect(Collectors.joining(", "));
+            whereConditions.add("UPPER(at.Artist_type) IN (" + placeholders + ")");
+            params.addAll(upperRoles);
+        }
+        if (name != null) {
+            whereConditions.add("UPPER(a.Name) " + (nameExact ? "= ?" : "LIKE ?"));
+            params.add(nameExact ? name.toUpperCase() : "%" + name.toUpperCase() + "%");
+        }
+        if (gender != null) {
+            if (gender.equals("None")) {
+                whereConditions.add("a.Gender IS NULL");
+            } else {
+                whereConditions.add("a.Gender = ?");
+                params.add(gender);
+            }
+        }
+        if (!whereConditions.isEmpty()) {
+            sql.append(" WHERE ").append(String.join(" AND ", whereConditions));
+        }
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+
+            for (int i = 0; i < params.size(); i++) {
+                pstmt.setObject(i + 1, params.get(i));
+            }
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("total_count");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    /**
+     * 유형 6번 쿼리를 응용 했습니다. (IN절)
+     *
+     * SELECT S.Title, S.Play_link
+     * FROM SONGS S
+     * JOIN PROVIDERS P ON S.Provider_id = P.Provider_id
+     * WHERE P.Provider_name IN ('Youtube_music', 'Sound_cloud');
+     */
+    public List<Artist> searchArtists(String name, boolean nameExact, String gender, List<String> roles) {
+        List<Artist> artists = new ArrayList<>();
+        List<Object> params = new ArrayList<>();
+
+        // DTO 매핑을 위해 'DisplayName' 대신 'a.Name'을 직접 SELECT
+        StringBuilder sql = new StringBuilder(
+                "SELECT DISTINCT a.Artist_id, a.Name, a.Gender " +
+                        "FROM ARTISTS a "
+        );
+
+        List<String> whereConditions = new ArrayList<>();
+        if (roles != null && !roles.isEmpty()) {
+            sql.append("LEFT JOIN ART_TYPES at ON a.Artist_id = at.Artist_id ");
+            List<String> upperRoles = roles.stream().map(String::toUpperCase).collect(Collectors.toList());
+            String placeholders = upperRoles.stream().map(r -> "?").collect(Collectors.joining(", "));
+            whereConditions.add("UPPER(at.Artist_type) IN (" + placeholders + ")"); // IN 활용된 부분
+            params.addAll(upperRoles);
+        }
+        if (name != null) {
+            whereConditions.add("UPPER(a.Name) " + (nameExact ? "= ?" : "LIKE ?"));
+            params.add(nameExact ? name.toUpperCase() : "%" + name.toUpperCase() + "%");
+        }
+        if (gender != null) {
+            if (gender.equals("None")) {
+                whereConditions.add("a.Gender IS NULL");
+            } else {
+                whereConditions.add("a.Gender = ?");
+                params.add(gender);
+            }
+        }
+        if (!whereConditions.isEmpty()) {
+            sql.append(" WHERE ").append(String.join(" AND ", whereConditions));
+        }
+
+        sql.append(" ORDER BY a.Name ASC"); // 정렬
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+
+            for (int i = 0; i < params.size(); i++) {
+                pstmt.setObject(i + 1, params.get(i));
+            }
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    artists.add(mapToArtist(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return artists;
     }
 
     /**

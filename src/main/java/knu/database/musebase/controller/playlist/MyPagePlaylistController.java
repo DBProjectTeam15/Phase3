@@ -12,8 +12,8 @@ import knu.database.musebase.service.PlaylistService;
  */
 public class MyPagePlaylistController extends PlaylistController {
 
-    public MyPagePlaylistController(PlaylistService playlistService, SessionWrapper sessionWrapper) {
-        super(playlistService, sessionWrapper);
+    public MyPagePlaylistController(PlaylistService playlistService) {
+        super(playlistService);
     }
 
 

@@ -13,14 +13,14 @@ public class Song {
     private long length;
     private String playLink;
     private Timestamp createAt;
-    private long providerId;
+    private String providerName; // 제공원
 
-    public Song(String title, long length, String playLink, long providerId) {
+    public Song(String title, long length, String playLink, String providerName) {
         this.id = -1;
         this.title = title;
         this.length = length;
         this.playLink = playLink;
         this.createAt = new Timestamp(System.currentTimeMillis());
-        this.providerId = providerId;
+        this.providerName = providerName;
     }
 }

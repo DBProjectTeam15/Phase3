@@ -5,8 +5,16 @@ import knu.database.musebase.controller.MyCommentController;
 import knu.database.musebase.controller.my.MyPageController;
 import knu.database.musebase.controller.playlist.MainPlaylistController;
 import knu.database.musebase.controller.playlist.MyPagePlaylistController;
+import knu.database.musebase.controller.search.ArtistResultController;
+import knu.database.musebase.controller.search.ArtistSearchController;
+import knu.database.musebase.controller.search.PlaylistResultController;
+import knu.database.musebase.controller.search.PlaylistSearchController;
+import knu.database.musebase.controller.search.SearchController;
+import knu.database.musebase.controller.search.SongResultController;
+import knu.database.musebase.controller.search.SongSearchController;
 import knu.database.musebase.dao.CommentDAO;
 import knu.database.musebase.dao.PlaylistDAO;
+import knu.database.musebase.service.ArtistService;
 import knu.database.musebase.service.CommentService;
 import knu.database.musebase.service.PlaylistService;
 import knu.database.musebase.auth.AuthService;
@@ -27,6 +35,7 @@ import knu.database.musebase.dao.UserDAO;
 import knu.database.musebase.dao.manager.ManagerDAO;
 import knu.database.musebase.dao.manager.SongRequestDAO;
 import knu.database.musebase.exception.InvalidLoginStateException;
+import knu.database.musebase.service.SongService;
 
 import java.util.HashMap;
 import java.util.Scanner;
@@ -123,15 +132,24 @@ public class ConsoleApplication {
         var authService = new AuthService(passwordEncryptor, userDAO);
         var playlistService = new PlaylistService(playlistDAO);
         var commentService = new CommentService(commentDAO);
+        var songService = new SongService(songDAO);
+        var artistService = new ArtistService(artistDAO);
 
         var pageControllers = new HashMap<PageKey, PageController<PageKey>>();
 
         pageControllers.put(PageKey.MAIN, new MainController(sessionWrapper, authService, playlistService));
         pageControllers.put(PageKey.MY_PAGE, new MyPageController(sessionWrapper, playlistService, commentService, passwordEncryptor, userDAO));
         pageControllers.put(PageKey.MY_PAGE_COMMENT, new MyCommentController(commentService));
-        pageControllers.put(PageKey.PLAYLIST_PAGE, new MainPlaylistController(playlistService, sessionWrapper));
-        pageControllers.put(PageKey.MY_PAGE_PLAYLIST, new MyPagePlaylistController(playlistService, sessionWrapper));
-        pageControllers.put(PageKey.SEARCH, null);
+        pageControllers.put(PageKey.PLAYLIST_PAGE, new MainPlaylistController(playlistService));
+        pageControllers.put(PageKey.MY_PAGE_PLAYLIST, new MyPagePlaylistController(playlistService));
+        pageControllers.put(PageKey.SEARCH, new SearchController());
+        pageControllers.put(PageKey.PLAYLIST_SEARCH, new PlaylistSearchController(playlistService));
+        pageControllers.put(PageKey.PLAYLIST_SEARCH_RESULT, new PlaylistResultController(playlistService));
+        pageControllers.put(PageKey.SONG_SEARCH, new SongSearchController(songService));
+        pageControllers.put(PageKey.SONG_RESULT, new SongResultController(songService));
+        pageControllers.put(PageKey.ARTIST_RESULT, new ArtistResultController(artistService));
+        pageControllers.put(PageKey.ARTIST_SEARCH, new ArtistSearchController(artistService));
+
 
         Scanner scanner = new Scanner(System.in);
 

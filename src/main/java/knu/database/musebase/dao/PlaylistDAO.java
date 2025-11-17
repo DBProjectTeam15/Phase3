@@ -72,6 +72,7 @@ public class PlaylistDAO extends BasicDataAccessObjectImpl<Playlist, Long> {
         return playlists;
     }
 
+
     /**
      * 쿼리 9.2 활용
      * 수정 사항 : ROWNUM을 사용하기 위해 ORDER BY를 포함한 서브쿼리로 감쌉니다.
@@ -127,6 +128,7 @@ public class PlaylistDAO extends BasicDataAccessObjectImpl<Playlist, Long> {
     }
 
     public List<Playlist> findByUserId(long userId) {
+        // ... (기존 코드와 동일, 변경 없음) ...
         List<Playlist> playlists = new ArrayList<>();
         String sql = "SELECT * FROM PLAYLISTS WHERE User_id = ?";
         try (Connection conn = getConnection();
@@ -144,6 +146,7 @@ public class PlaylistDAO extends BasicDataAccessObjectImpl<Playlist, Long> {
     }
 
     public List<Playlist> findByUserIdAndIsShared(long userId) {
+        // ... (기존 코드와 동일, 변경 없음) ...
         List<Playlist> playlists = new ArrayList<>();
         String sql = "SELECT * FROM PLAYLISTS WHERE User_id = ? AND Is_collaborative = 'true'";
         try (Connection conn = getConnection();
@@ -159,6 +162,81 @@ public class PlaylistDAO extends BasicDataAccessObjectImpl<Playlist, Long> {
         }
         return playlists;
     }
+
+    public List<Playlist> searchPlaylists(String title, boolean titleExact,
+                                          Integer songCountMin, Integer songCountMax,
+                                          Integer commentCountMin, Integer commentCountMax,
+                                          String owner, boolean ownerExact,
+                                          Integer lenMin, Integer lenMax) {
+
+        List<Playlist> playlists = new ArrayList<>();
+        List<Object> params = new ArrayList<>(); // PreparedStatement에 바인딩할 파라미터 리스트
+
+        StringBuilder sql = new StringBuilder(
+                "SELECT " +
+                        "  p.Playlist_id, p.Title, p.Is_collaborative, p.User_id, " +
+                        "  COUNT(DISTINCT co.Song_id) AS SongCount, " +
+                        "  COUNT(DISTINCT c.Comment_id) AS CommentCount, " +
+                        "  NVL(SUM(s.Length), 0) AS TotalLength " +
+                        "FROM PLAYLISTS p " +
+                        "LEFT JOIN USERS u ON p.User_id = u.User_id " +
+                        "LEFT JOIN CONSISTED_OF co ON p.Playlist_id = co.Playlist_id " +
+                        "LEFT JOIN SONGS s ON co.Song_id = s.Song_id " +
+                        "LEFT JOIN COMMENTS c ON p.Playlist_id = c.Playlist_id "
+        );
+
+        // 2. 동적 WHERE 절 (DBManager 로직)
+        List<String> whereConditions = new ArrayList<>();
+        if (title != null) {
+            whereConditions.add("UPPER(p.Title) " + (titleExact ? "= ?" : "LIKE ?"));
+            params.add(titleExact ? title.toUpperCase() : "%" + title.toUpperCase() + "%");
+        }
+        if (owner != null) {
+            whereConditions.add("UPPER(u.Nickname) " + (ownerExact ? "= ?" : "LIKE ?"));
+            params.add(ownerExact ? owner.toUpperCase() : "%" + owner.toUpperCase() + "%");
+        }
+        if (!whereConditions.isEmpty()) {
+            sql.append(" WHERE ").append(String.join(" AND ", whereConditions));
+        }
+
+        // 3. GROUP BY 절 (mapResultSetToPlaylist를 위해 SELECT한 컬럼들 추가)
+        sql.append(" GROUP BY p.Playlist_id, p.Title, p.Is_collaborative, p.User_id, u.Nickname ");
+
+        // 4. 동적 HAVING 절 (DBManager 로직)
+        List<String> havingConditions = new ArrayList<>();
+        if (songCountMin != null) { havingConditions.add("COUNT(DISTINCT co.Song_id) >= ?"); params.add(songCountMin); }
+        if (songCountMax != null) { havingConditions.add("COUNT(DISTINCT co.Song_id) <= ?"); params.add(songCountMax); }
+        if (commentCountMin != null) { havingConditions.add("COUNT(DISTINCT c.Comment_id) >= ?"); params.add(commentCountMin); }
+        if (commentCountMax != null) { havingConditions.add("COUNT(DISTINCT c.Comment_id) <= ?"); params.add(commentCountMax); }
+        if (lenMin != null) { havingConditions.add("NVL(SUM(s.Length), 0) >= ?"); params.add(lenMin); }
+        if (lenMax != null) { havingConditions.add("NVL(SUM(s.Length), 0) <= ?"); params.add(lenMax); }
+        if (!havingConditions.isEmpty()) {
+            sql.append(" HAVING ").append(String.join(" AND ", havingConditions));
+        }
+
+        // 5. 정렬 (DBManager 로직)
+        sql.append(" ORDER BY p.Title ASC");
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+
+            // 파라미터 바인딩
+            for (int i = 0; i < params.size(); i++) {
+                pstmt.setObject(i + 1, params.get(i));
+            }
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    playlists.add(mapResultSetToPlaylist(rs)); // 기존 매퍼 재사용
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // 예외 처리
+        }
+
+        return playlists;
+    }
+
 
     private Playlist mapResultSetToPlaylist(ResultSet rs) throws SQLException {
         return new Playlist(
