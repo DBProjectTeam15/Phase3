@@ -19,8 +19,8 @@ out/
 
 ### Eclipse ###
 .apt_generated
+.classpath
 .factorypath
-settings
 .springBeans
 .sts4-cache
 bin/

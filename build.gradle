@@ -1,8 +1,10 @@
 plugins {
     id 'java'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'application'
 }
 
-group = 'dbproject.team15'
+group = 'knu.database.musebase'
 version = '1.0-SNAPSHOT'
 
 repositories {
@@ -16,13 +18,32 @@ java {
 }
 
 dependencies {
-    implementation("com.oracle.database.jdbc:ojdbc17:23.26.0.0.0")
-
+    // test libraries
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // dependency for Phase 4
+    implementation "org.apache.tomcat.embed:tomcat-embed-core:10.1.49"
+
+    // utility libraries
+    implementation "org.slf4j:slf4j-api:2.0.17"
+    implementation "org.projectlombok:lombok:1.18.42"
+    implementation "ch.qos.logback:logback-classic:1.5.21"
+    compileOnly 'org.projectlombok:lombok:1.18.42'
+    annotationProcessor 'org.projectlombok:lombok:1.18.42'
+    implementation "org.yaml:snakeyaml:2.5"
+
+    // dependencies for managing database connections
+    implementation "com.oracle.database.jdbc:ojdbc10:19.29.0.0"
+    implementation "com.zaxxer:HikariCP:7.0.2"
+
 }
 
 test {
     useJUnitPlatform()
+}
+
+application {
+    mainClass = 'knu.database.musebase.MuseBaseApplication'
 }
