@@ -3,7 +3,7 @@ package knu.database.musebase.controller.manager;
 import knu.database.musebase.dao.ArtistDAO;
 import knu.database.musebase.data.Artist;
 import knu.database.musebase.console.ManagerPageKey;
-import knu.database.musebase.service.auth.ManagerAuthService;
+import knu.database.musebase.auth.manager.ManagerAuthService;
 import knu.database.musebase.console.PageController;
 import knu.database.musebase.auth.manager.ManagerSessionWrapper;
 import knu.database.musebase.exception.InvalidLoginStateException;
