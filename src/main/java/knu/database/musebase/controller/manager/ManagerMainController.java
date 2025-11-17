@@ -2,7 +2,7 @@ package knu.database.musebase.controller.manager;
 
 import knu.database.musebase.console.PageController;
 import knu.database.musebase.console.ManagerPageKey;
-import knu.database.musebase.service.auth.ManagerAuthService;
+import knu.database.musebase.auth.manager.ManagerAuthService;
 import knu.database.musebase.auth.manager.ManagerSessionWrapper;
 import knu.database.musebase.exception.InvalidLoginStateException;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,6 @@ public class ManagerMainController implements PageController<ManagerPageKey> {
         System.out.println("3. 제공원 관리");
         System.out.println("4. 아티스트 관리");
         System.out.println("5. 음원 관리");
-        System.out.println("6. 검색 (재사용)");
         System.out.println("---------------------");
         System.out.println("0. 종료");
     }
@@ -51,7 +50,6 @@ public class ManagerMainController implements PageController<ManagerPageKey> {
             case "3" -> ManagerPageKey.PROVIDER_MANAGEMENT;
             case "4" -> ManagerPageKey.ARTIST_MANAGEMENT;
             case "5" -> ManagerPageKey.SONG_MANAGEMENT;
-            case "6" -> ManagerPageKey.SEARCH;
             case "0" -> ManagerPageKey.EXIT;
             default -> ManagerPageKey.MANAGER_MAIN;
         };

@@ -1,6 +1,5 @@
-package knu.database.musebase.service.auth;
+package knu.database.musebase.auth.manager;
 
-import knu.database.musebase.auth.manager.ManagerSession;
 import knu.database.musebase.crypto.PasswordEncryptor;
 import knu.database.musebase.dao.manager.ManagerDAO;
 import knu.database.musebase.data.Manager;

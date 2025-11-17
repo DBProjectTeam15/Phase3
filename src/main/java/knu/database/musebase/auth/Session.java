@@ -1,15 +1,15 @@
-package knu.database.musebase.domain.manager.auth;
+package knu.database.musebase.auth;
 
 import lombok.Getter;
 
-public class ManagerSession {
+public class Session {
     @Getter
     private final String loggedInNickname;
     @Getter
-    private final String loggedInId;
+    private final long loggedInId;
 
     // package private : 동일 패키지 이외에서는 접근하지 못함.
-    ManagerSession(String loggedInId, String loggedInNickname) {
+    Session(long loggedInId, String loggedInNickname) {
         this.loggedInId = loggedInId;
         this.loggedInNickname = loggedInNickname;
     }

@@ -14,26 +14,28 @@ public class PasswordEncryptorImpl implements PasswordEncryptor {
 
     @Override
     public String getPasswordHash(String password) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            md.update((password).getBytes());
-            byte[] digest = md.digest();
+//        try {
+            // TODO: SEEDING을 쉽게하기 위해 일부러 평문으로 처리합니다.
+//            MessageDigest md = MessageDigest.getInstance("SHA-256");
+//            md.update((password).getBytes());
+//            byte[] digest = md.digest();
+//
+//            StringBuilder sb = new StringBuilder();
+//            for (byte b : digest) {
+//                String hex = Integer.toHexString(0xff & b);
+//                if (hex.length() == 1) {
+//                    sb.append('0');
+//                }
+//                sb.append(hex);
+//            }
+//
+//            return sb.toString();
+            return password;
 
-            StringBuilder sb = new StringBuilder();
-            for (byte b : digest) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) {
-                    sb.append('0');
-                }
-                sb.append(hex);
-            }
-
-            return sb.toString();
-
-        } catch (NoSuchAlgorithmException e) {
-
-            log.error(e.getMessage());
-            throw new RuntimeException(e);
-        }
+//        } catch (NoSuchAlgorithmException e) {
+//
+//            log.error(e.getMessage());
+//            throw new RuntimeException(e);
+//        }
     }
 }

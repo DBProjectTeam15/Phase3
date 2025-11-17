@@ -18,10 +18,10 @@ public class MuseBaseApplication {
         }
 
         if (args.length >= 1 && args[0] != null && args[0].equals(ConsoleMode.MANAGER.toLowerCase())) {
-            new ConsoleApplication().run(ConsoleMode.MANAGER);
+            new ConsoleApplication().init(ConsoleMode.MANAGER);
         }
         else {
-            new ConsoleApplication().run(ConsoleMode.MAIN);
+            new ConsoleApplication().init(ConsoleMode.MAIN);
         }
 
     }
