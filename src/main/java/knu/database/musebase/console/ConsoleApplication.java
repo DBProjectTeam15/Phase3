@@ -1,19 +1,29 @@
 package knu.database.musebase.console;
 
-import knu.database.musebase.service.auth.AuthService;
+import knu.database.musebase.controller.MainController;
+import knu.database.musebase.controller.MyCommentController;
+import knu.database.musebase.controller.my.MyPageController;
+import knu.database.musebase.controller.playlist.MainPlaylistController;
+import knu.database.musebase.controller.playlist.MyPagePlaylistController;
+import knu.database.musebase.dao.CommentDAO;
+import knu.database.musebase.dao.PlaylistDAO;
+import knu.database.musebase.service.CommentService;
+import knu.database.musebase.service.PlaylistService;
+import knu.database.musebase.auth.AuthService;
 import knu.database.musebase.auth.SessionWrapper;
 import knu.database.musebase.crypto.PasswordEncryptor;
 import knu.database.musebase.crypto.PasswordEncryptorImpl;
 import knu.database.musebase.dao.ArtistDAO;
 import knu.database.musebase.dao.ProviderDAO;
 import knu.database.musebase.dao.SongDAO;
-import knu.database.musebase.service.auth.ManagerAuthService;
+import knu.database.musebase.auth.manager.ManagerAuthService;
 import knu.database.musebase.auth.manager.ManagerSessionWrapper;
 import knu.database.musebase.controller.manager.ArtistManageController;
 import knu.database.musebase.controller.manager.ManagerMainController;
 import knu.database.musebase.controller.manager.ProviderManageController;
 import knu.database.musebase.controller.manager.SongManageController;
 import knu.database.musebase.controller.manager.SongRequestManageController;
+import knu.database.musebase.dao.UserDAO;
 import knu.database.musebase.dao.manager.ManagerDAO;
 import knu.database.musebase.dao.manager.SongRequestDAO;
 import knu.database.musebase.exception.InvalidLoginStateException;
@@ -22,12 +32,12 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 public class ConsoleApplication {
-    public void run(ConsoleMode mode) {
+    public void init(ConsoleMode mode) {
         if (mode == ConsoleMode.MANAGER) {
             runManager();
         }
         else {
-            run();
+            init();
         }
     }
 
@@ -90,7 +100,61 @@ public class ConsoleApplication {
         scanner.close();
     }
 
-    private void run() {
+    private void init() {
 
+        // doing di
+
+        // application states
+        PageKey pageKey = PageKey.MAIN;
+        SessionWrapper sessionWrapper = new SessionWrapper();
+
+        // dao
+        var userDAO = new UserDAO();
+        var songDAO = new SongDAO();
+        var providerDAO = new ProviderDAO();
+        var songRequestDAO = new SongRequestDAO();
+        var artistDAO = new ArtistDAO();
+        var playlistDAO = new PlaylistDAO();
+        var commentDAO = new CommentDAO();
+
+        // crypto
+        var passwordEncryptor = (PasswordEncryptor) new PasswordEncryptorImpl();
+
+        // services
+        var authService = new AuthService(passwordEncryptor, userDAO);
+        var playlistService = new PlaylistService(playlistDAO);
+        var commentService = new CommentService(commentDAO);
+
+        var pageControllers = new HashMap<PageKey, PageController<PageKey>>();
+
+        pageControllers.put(PageKey.MAIN, new MainController(sessionWrapper, authService, playlistService));
+        pageControllers.put(PageKey.MY_PAGE, new MyPageController(sessionWrapper, playlistService, commentService, passwordEncryptor, userDAO));
+        pageControllers.put(PageKey.MY_PAGE_COMMENT, new MyCommentController(commentService));
+        pageControllers.put(PageKey.PLAYLIST_PAGE, new MainPlaylistController(playlistService, sessionWrapper));
+        pageControllers.put(PageKey.MY_PAGE_PLAYLIST, new MyPagePlaylistController(playlistService, sessionWrapper));
+        pageControllers.put(PageKey.SEARCH, null);
+
+        Scanner scanner = new Scanner(System.in);
+
+        clearScreen();
+
+        while (pageKey != PageKey.EXIT) {
+            PageController<PageKey> pageController = pageControllers.get(pageKey);
+
+            try {
+                pageController.displayScreen();
+            } catch (InvalidLoginStateException e) {
+                System.out.println(e.getMessage() + '\n');
+                pageKey = PageKey.MAIN;
+                continue;
+            }
+
+            String command = scanner.nextLine();
+
+            pageKey = pageController.invoke(command.split(" "));
+            clearScreen();
+        }
+
+        scanner.close();
     }
 }

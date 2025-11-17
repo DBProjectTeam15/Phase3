@@ -1,12 +1,12 @@
 CREATE TABLE USERS (
-                       User_id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                       User_id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, -- 인조키에 AUTO GENERATED KEY 기능을 사용하게 하기 위해 변경했습니다.
                        Nickname VARCHAR2(30) NOT NULL,
-                       Password VARCHAR2(30) NOT NULL,
-                       Email VARCHAR2(50) NOT NULL
+                       Password VARCHAR2(255) NOT NULL,
+                       Email VARCHAR2(50) NOT NULL UNIQUE -- 기능 구현 중, 이메일로 로그인하도록 기능을 수정했습니다.
 );
 
 CREATE TABLE PLAYLISTS (
-                           Playlist_id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                           Playlist_id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, --
                            Title VARCHAR2(30) NOT NULL,
                            Is_collaborative VARCHAR2(10) NOT NULL,
                            User_id NUMBER NOT NULL REFERENCES USERS(User_id)
@@ -56,12 +56,12 @@ CREATE TABLE MADE_BY (
 );
 
 CREATE TABLE COMMENTS (
-                          Comment_id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                          Comment_id NUMBER NOT NULL,
                           Content VARCHAR2(200) NOT NULL,
                           Commented_at TIMESTAMP NOT NULL,
                           User_id NUMBER NOT NULL REFERENCES USERS(User_id),
                           Playlist_id NUMBER NOT NULL REFERENCES PLAYLISTS(Playlist_id),
-                          PRIMARY KEY (User_id, Playlist_id, Comment_id)
+                          PRIMARY KEY (User_id, Playlist_id, Comment_id) -- 복합 키
 );
 
 CREATE TABLE CONSISTED_OF (
