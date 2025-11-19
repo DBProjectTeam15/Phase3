@@ -133,7 +133,7 @@ public class PlaylistDAO extends BasicDataAccessObjectImpl<Playlist, Long> {
     // 쿼리 1.4 활용 - 특정 유저가 "소유한" 플레이리스트 조회
     // "SELECT * FROM PLAYLISTS WHERE User_id = ?"
     //
-    // 쿼리 1.4
+    // 기존
     // SELECT Playlist_id, Title
     // FROM PLAYLISTS
     // WHERE User_id = 10000001;

@@ -21,10 +21,11 @@ public class SongRequestManageController implements PageController<ManagerPageKe
         }
 
         System.out.println("\n--- 악곡 요청 관리 페이지 (관리자) ---");
-        System.out.println("관리자 ID: " + sessionWrapper.getManagerSession().getLoggedInNickname());
+        System.out.println("관리자 이름: " + sessionWrapper.getManagerSession().getLoggedInNickname());
         // (데이터베이스 연동 시) 실제 데이터 조회
+        System.out.println("ID : 노래 제목 : 아티스트 : 신청자 ID : 요청 일시");
         songRequestDAO.findByManagerId(sessionWrapper.getManagerSession().getLoggedInId()).forEach(songRequest -> {
-            var str = songRequest.getTitle() + " : " + songRequest.getArtist()
+            var str = songRequest.getId() + " : " + songRequest.getTitle() + " : " + songRequest.getArtist()
                     + " : 신청자 : " + songRequest.getUserId()
                     + " : " + songRequest.getRequestAt();
             System.out.println(str);
