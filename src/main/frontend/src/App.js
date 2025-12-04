@@ -12,7 +12,8 @@ import ArtistSearchPage from './pages/ArtistSearchPage';
 import AdminPage from './pages/AdminPage';
 import SongRequestPage from './pages/SongRequestPage';
 import ProviderManagePage from './pages/ProviderManagePage';
-import ArtistManagePage from './pages/ArtistManagePage'; 
+import ArtistManagePage from './pages/ArtistManagePage';
+import ConnectionTestPage from './pages/ConnectionTestPage';
 
 function App() {
   return (
@@ -30,7 +31,8 @@ function App() {
           <Route path="admin" element={<AdminPage />} />
           <Route path="admin/requests" element={<SongRequestPage />} />
           <Route path="admin/providers" element={<ProviderManagePage />} />
-          <Route path="admin/artists" element={<ArtistManagePage />} /> 
+          <Route path="admin/artists" element={<ArtistManagePage />} />
+          <Route path="test-connection" element={<ConnectionTestPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
