@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Button, Row, Col, Spinner } from 'react-bootstrap';
-import apiClient from '../api/apiClient'; // apiClient 임포트 경로 확인
+import apiClient from '../api/apiClient.js'; // apiClient 임포트 경로 확인
 
 // PlayListCard 컴포넌트는 그대로 사용합니다.
 const PlaylistCard = ({ rank, id, title, ownerNickname, songCount, navigate }) => {

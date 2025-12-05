@@ -14,7 +14,7 @@ public class MusicBaseApplication {
             // 이전에 사용자님이 알려주신 DB 정보를 직접 ConnectionManager에 전달합니다.
             String dbUsername = "musicbase";
             String dbPassword = "musicbase1234";
-            String dbUrl = "jdbc:oracle:thin:@localhost:1521:xe";
+            String dbUrl = "jdbc:oracle:thin:@localhost:1522:xe";
 
             // ConnectionManager.init(String, String, String) 오버로드 메서드를 사용합니다.
             ConnectionManager.init(dbUsername, dbPassword, dbUrl);

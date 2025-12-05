@@ -1,19 +1,19 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import MainLayout from './components/MainLayout';
-import LoginPage from './pages/LoginPage';
-import MyPage from './pages/MyPage';
-import PlaylistPage from './pages/PlaylistPage';
-import PlaylistDetailPage from './pages/PlaylistDetailPage';
-import SearchPage from './pages/SearchPage';
-import PlaylistSearchPage from './pages/PlaylistSearchPage';
-import SongSearchPage from './pages/SongSearchPage';
-import ArtistSearchPage from './pages/ArtistSearchPage';
-import AdminPage from './pages/AdminPage';
-import SongRequestPage from './pages/SongRequestPage';
-import ProviderManagePage from './pages/ProviderManagePage';
-import ArtistManagePage from './pages/ArtistManagePage';
-import ConnectionTestPage from './pages/ConnectionTestPage';
+import MainLayout from './components/MainLayout.jsx';
+import LoginPage from './pages/LoginPage.jsx';
+import MyPage from './pages/MyPage.jsx';
+import PlaylistPage from './pages/PlaylistPage.jsx';
+import PlaylistDetailPage from './pages/PlaylistDetailPage.jsx';
+import SearchPage from './pages/SearchPage.jsx';
+import PlaylistSearchPage from './pages/PlaylistSearchPage.jsx';
+import SongSearchPage from './pages/SongSearchPage.jsx';
+import ArtistSearchPage from './pages/ArtistSearchPage.jsx';
+import AdminPage from './pages/AdminPage.jsx';
+import SongRequestPage from './pages/SongRequestPage.jsx';
+import ProviderManagePage from './pages/ProviderManagePage.jsx';
+import ArtistManagePage from './pages/ArtistManagePage.jsx';
+import ConnectionTestPage from './pages/ConnectionTestPage.jsx';
 
 function App() {
   return (

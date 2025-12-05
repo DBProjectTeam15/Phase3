@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, Form, Button, Row, Col, Container, Spinner } from 'react-bootstrap';
 import { useNavigate, useOutletContext } from 'react-router-dom';
-import apiClient from '../api/apiClient'; // apiClient 임포트 경로 확인
+import apiClient from '../api/apiClient.js'; // apiClient 임포트 경로 확인
 
 // 사용자 세션 토큰 및 이름이 저장될 localStorage 키
 const USER_TOKEN_KEY = 'user_token';
@@ -29,7 +29,7 @@ const LoggedInInfoCard = ({ userName, onLogout }) => (
 
 
 function LoginPage() {
-    // 최상위 Context에서 로그인 상태와 닉네임을 가져옴 (App.js 등의 상위 컴포넌트에서 관리)
+    // 최상위 Context에서 로그인 상태와 닉네임을 가져옴 (App.jsx 등의 상위 컴포넌트에서 관리)
     const { isLoggedIn, setIsLoggedIn, username, setUsername } = useOutletContext(); 
     const navigate = useNavigate(); 
     
@@ -50,7 +50,7 @@ function LoginPage() {
         setIsLoggingIn(true);
         try {
             // API 4.1.1 사용자 로그인
-            const response = await apiClient.post('/auth/login', {
+            const response = await apiClient.post('/login', {
                 email: emailInput,
                 password: passwordInput,
             });

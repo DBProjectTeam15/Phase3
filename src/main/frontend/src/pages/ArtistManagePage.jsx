@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Button, Table, Card, Row, Col, Modal, Form, Spinner } from 'react-bootstrap';
-import apiClient from '../api/apiClient';
+import apiClient from '../api/apiClient.js';
 
 const mapGenderToApi = (uiGender) => {
     switch (uiGender) {

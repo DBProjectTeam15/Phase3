@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Spinner } from 'react-bootstrap';
 import { Outlet, useLocation } from 'react-router-dom';
-import apiClient from '../api/apiClient'; // apiClient 임포트 경로 확인
+import apiClient from '../api/apiClient.js'; // apiClient 임포트 경로 확인
 
 // 사용자 세션 토큰 키 (LoginPage.js와 동일해야 함)
 const USER_TOKEN_KEY = 'user_token'; 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Button, Table, Modal, Card, Form, Spinner } from 'react-bootstrap';
-import apiClient from '../api/apiClient';
+import apiClient from '../api/apiClient.js';
 
 function ProviderManagePage() {
     const navigate = useNavigate();

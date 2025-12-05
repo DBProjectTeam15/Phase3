@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Button, Table, Modal, Card, Spinner } from 'react-bootstrap';
-import apiClient from '../api/apiClient';
+import apiClient from '../api/apiClient.js';
 
 function SongRequestPage() {
     const navigate = useNavigate();

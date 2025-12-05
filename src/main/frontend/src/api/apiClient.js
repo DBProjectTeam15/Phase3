@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // API 명세서에 따른 기본 URL 설정
-const API_BASE_URL = 'http://localhost:8080/api'; 
+const API_BASE_URL = '/api';
 
 // 사용자/관리자 토큰 키 정의
 const USER_TOKEN_KEY = 'user_token'; 

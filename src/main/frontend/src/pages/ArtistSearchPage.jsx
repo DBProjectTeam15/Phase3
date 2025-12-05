@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Button, Form, Row, Col, Table, Card, Spinner, Alert } from 'react-bootstrap';
-import apiClient from '../api/apiClient'; // apiClient 임포트 경로 확인
+import apiClient from '../api/apiClient.js'; // apiClient 임포트 경로 확인
 
 // ====================================================================
 // ⚠️ 성별/역할 매핑 유틸리티

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Container, Button, Table, Spinner, Alert } from 'react-bootstrap';
-import apiClient from '../api/apiClient'; // apiClient 임포트 경로 확인
+import apiClient from '../api/apiClient.js'; // apiClient 임포트 경로 확인
 
 // 빈 객체/배열로 초기화하여 조건부 렌더링에 대비
 const INITIAL_DETAIL = { id: null, title: '로딩 중...', ownerNickname: '', songs: 0, isCollaborative: false };

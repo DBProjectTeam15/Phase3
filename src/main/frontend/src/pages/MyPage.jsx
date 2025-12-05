@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { Container, Card, Button, Form, Row, Col, Table, Modal, Alert, Spinner } from 'react-bootstrap';
-import apiClient from '../api/apiClient'; // apiClient 임포트 경로
+import apiClient from '../api/apiClient.js'; // apiClient 임포트 경로
 
 // ====================================================================
 // 🔑 상태 및 API 정의
