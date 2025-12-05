@@ -5,7 +5,7 @@ import apiClient from '../api/apiClient.js';
 
 function ProviderManagePage() {
     const navigate = useNavigate();
-    
+
     const [providers, setProviders] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -15,14 +15,13 @@ function ProviderManagePage() {
     const [selectedProviderId, setSelectedProviderId] = useState(null);
     const [newProviderName, setNewProviderName] = useState('');
     const [newProviderLink, setNewProviderLink] = useState('');
-    
-    // 1. 🖼️ 제공원 목록 조회 (GET /providers) - 수정됨!
+
     const fetchProviders = async () => {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await apiClient.get('/providers'); 
-            
+            const response = await apiClient.get('/api/providers');
+
             const fetchedProviders = response.data.data.providers;
             setProviders(fetchedProviders);
         } catch (err) {
@@ -33,7 +32,7 @@ function ProviderManagePage() {
             setIsLoading(false);
         }
     };
-    
+
     useEffect(() => {
         fetchProviders();
     }, []);
@@ -42,7 +41,6 @@ function ProviderManagePage() {
         navigate(-1);
     };
 
-    // 2. 🗑️ 제공원 삭제 (DELETE /providers/{providerId}) - 수정됨!
     const handleShowDeleteModal = (id) => {
         setSelectedProviderId(id);
         setShowDeleteModal(true);
@@ -52,14 +50,14 @@ function ProviderManagePage() {
         if (!selectedProviderId) return;
 
         try {
-            await apiClient.delete(`/providers/${selectedProviderId}`); 
-            
+            await apiClient.delete(`/api/providers/${selectedProviderId}`);
+
             alert(`제공원 ID ${selectedProviderId}가 삭제되었습니다.`);
-            fetchProviders(); 
+            fetchProviders();
 
         } catch (err) {
             if (err.response && err.response.status === 404) {
-                alert(`ID ${selectedProviderId}를 가진 제공원을 찾을 수 없습니다.`); 
+                alert(`ID ${selectedProviderId}를 가진 제공원을 찾을 수 없습니다.`);
             } else {
                 const msg = err.response?.data?.message || "제공원 삭제 중 오류가 발생했습니다.";
                 alert(msg);
@@ -75,13 +73,12 @@ function ProviderManagePage() {
         setSelectedProviderId(null);
     };
 
-    // 3. ➕ 제공원 추가 (POST /providers) - 수정됨!
     const handleShowAddModal = () => {
         setShowAddModal(true);
         setNewProviderName('');
         setNewProviderLink('');
     };
-    
+
     const handleAddProvider = async (e) => {
         e.preventDefault();
         if (!newProviderName || !newProviderLink) {
@@ -90,13 +87,13 @@ function ProviderManagePage() {
         }
 
         try {
-            const response = await apiClient.post('/providers', {
+            const response = await apiClient.post('/api/providers', {
                 name: newProviderName,
                 link: newProviderLink,
             });
-            
+
             alert(response.data.message || `${response.data.data.name} 제공원이 추가되었습니다.`);
-            fetchProviders(); 
+            fetchProviders();
 
         } catch (err) {
             console.error("제공원 추가 오류:", err.response || err);
@@ -123,7 +120,7 @@ function ProviderManagePage() {
                     ← 뒤로가기
                 </Button>
             </div>
-            
+
             <h2 className="mb-1" style={{ fontWeight: 'bold' }}>제공원 관리</h2>
             <p className="text-muted mb-4" style={{ fontSize: '0.9em' }}>음악 제공원 목록을 확인하고 관리하세요</p>
 
@@ -142,38 +139,38 @@ function ProviderManagePage() {
                     ) : (
                         <Table borderless responsive>
                             <thead style={{ color: '#555' }}>
-                                <tr>
-                                    <th className="p-0 pb-2 border-bottom">제공원 ID</th>
-                                    <th className="p-0 pb-2 border-bottom">제공원 이름</th>
-                                    <th className="p-0 pb-2 border-bottom">제공원 링크</th>
-                                    <th className="p-0 pb-2 border-bottom">작업</th>
-                                </tr>
+                            <tr>
+                                <th className="p-0 pb-2 border-bottom">제공원 ID</th>
+                                <th className="p-0 pb-2 border-bottom">제공원 이름</th>
+                                <th className="p-0 pb-2 border-bottom">제공원 링크</th>
+                                <th className="p-0 pb-2 border-bottom">작업</th>
+                            </tr>
                             </thead>
                             <tbody>
-                                {providers.map((prov) => (
-                                    <tr key={prov.id}>
-                                        <td className="p-0 py-2">{prov.id}</td>
-                                        <td className="p-0 py-2">{prov.name}</td>
-                                        <td className="p-0 py-2">
-                                            <Button 
-                                                variant="link" 
-                                                onClick={() => handleLinkClick(prov.link)}
-                                                style={{ padding: '0' }}
-                                            >
-                                                링크 {'⇗'}
-                                            </Button>
-                                        </td>
-                                        <td className="p-0 py-2">
-                                            <Button 
-                                                variant="link" 
-                                                onClick={() => handleShowDeleteModal(prov.id)}
-                                                style={{ color: '#dc3545', padding: '0' }}
-                                            >
-                                                🗑️
-                                            </Button>
-                                        </td>
-                                    </tr>
-                                ))}
+                            {providers.map((prov) => (
+                                <tr key={prov.id}>
+                                    <td className="p-0 py-2">{prov.id}</td>
+                                    <td className="p-0 py-2">{prov.name}</td>
+                                    <td className="p-0 py-2">
+                                        <Button
+                                            variant="link"
+                                            onClick={() => handleLinkClick(prov.link)}
+                                            style={{ padding: '0' }}
+                                        >
+                                            링크 {'⇗'}
+                                        </Button>
+                                    </td>
+                                    <td className="p-0 py-2">
+                                        <Button
+                                            variant="link"
+                                            onClick={() => handleShowDeleteModal(prov.id)}
+                                            style={{ color: '#dc3545', padding: '0' }}
+                                        >
+                                            🗑️
+                                        </Button>
+                                    </td>
+                                </tr>
+                            ))}
                             </tbody>
                         </Table>
                     )}
@@ -203,9 +200,9 @@ function ProviderManagePage() {
                     <Form onSubmit={handleAddProvider}>
                         <Form.Group className="mb-3">
                             <Form.Label>제공원 이름</Form.Label>
-                            <Form.Control 
-                                type="text" 
-                                placeholder="예: YouTube Music" 
+                            <Form.Control
+                                type="text"
+                                placeholder="예: YouTube Music"
                                 value={newProviderName}
                                 onChange={(e) => setNewProviderName(e.target.value)}
                                 required
@@ -213,9 +210,9 @@ function ProviderManagePage() {
                         </Form.Group>
                         <Form.Group className="mb-3">
                             <Form.Label>제공원 링크 (URL)</Form.Label>
-                            <Form.Control 
-                                type="url" 
-                                placeholder="예: https://music.youtube.com" 
+                            <Form.Control
+                                type="url"
+                                placeholder="예: https://music.youtube.com"
                                 value={newProviderLink}
                                 onChange={(e) => setNewProviderLink(e.target.value)}
                                 required

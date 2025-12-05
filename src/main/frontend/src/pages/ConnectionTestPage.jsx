@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../api/apiClient';
 
 function ConnectionTestPage() {
     const [message, setMessage] = useState('백엔드와 통신 시도 중...');
 
     useEffect(() => {
-        axios.get('http://localhost:8080/api/hello')
+        apiClient.get('/api/hello')
             .then(response => {
                 setMessage('✅ 통합 성공! 백엔드 메시지: ' + response.data);
             })
             .catch(error => {
                 console.error('API 호출 오류:', error);
-                setMessage('❌ 통신 실패: CORS 설정이나 Spring Boot 서버 상태를 확인하세요.');
+                setMessage('❌ 통신 실패: 서버 응답 또는 네트워크 상태를 확인하세요.');
             });
     }, []);
 

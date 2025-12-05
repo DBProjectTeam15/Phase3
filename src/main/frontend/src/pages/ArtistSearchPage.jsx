@@ -1,20 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Button, Form, Row, Col, Table, Card, Spinner, Alert } from 'react-bootstrap';
-import apiClient from '../api/apiClient.js'; // apiClient 임포트 경로 확인
-
-// ====================================================================
-// ⚠️ 성별/역할 매핑 유틸리티
-// ====================================================================
+import apiClient from '../api/apiClient.js';
 
 const GENDER_OPTIONS = ['전체', '남성', '여성'];
-const ROLE_OPTIONS = ['전체', '가수', '작곡가', '작사가']; // API 명세서 기반 수정
+const ROLE_OPTIONS = ['전체', '가수', '작곡가', '작사가'];
 
 const mapGenderToApi = (uiGender) => {
     switch (uiGender) {
         case '남성': return 'M';
         case '여성': return 'F';
-        case '전체': return null; // API 명세서에 gender null은 전체 성별 검색으로 명시 [cite: 833]
+        case '전체': return null;
         default: return null;
     }
 };
@@ -27,10 +23,6 @@ const mapGenderToUi = (apiGender) => {
         default: return '전체';
     }
 };
-
-// ====================================================================
-// 🖼️ 검색 결과 테이블 컴포넌트
-// ====================================================================
 
 const SearchResultTable = ({ results, isLoading, error }) => (
     <div className="mt-5">
@@ -45,20 +37,20 @@ const SearchResultTable = ({ results, isLoading, error }) => (
             ) : (
                 <Table borderless responsive>
                     <thead style={{ color: '#555' }}>
-                        <tr>
-                            <th className="p-0 pb-2 border-bottom" style={{ width: '30%' }}>아티스트 ID</th>
-                            <th className="p-0 pb-2 border-bottom" style={{ width: '40%' }}>아티스트명</th>
-                            <th className="p-0 pb-2 border-bottom" style={{ width: '30%' }}>성별</th>
-                        </tr>
+                    <tr>
+                        <th className="p-0 pb-2 border-bottom" style={{ width: '30%' }}>아티스트 ID</th>
+                        <th className="p-0 pb-2 border-bottom" style={{ width: '40%' }}>아티스트명</th>
+                        <th className="p-0 pb-2 border-bottom" style={{ width: '30%' }}>성별</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        {results.map((item) => (
-                            <tr key={item.id}>
-                                <td className="p-0 py-2">{item.id}</td>
-                                <td className="p-0 py-2">{item.name}</td>
-                                <td className="p-0 py-2">{mapGenderToUi(item.gender)}</td>
-                            </tr>
-                        ))}
+                    {results.map((item) => (
+                        <tr key={item.id}>
+                            <td className="p-0 py-2">{item.id}</td>
+                            <td className="p-0 py-2">{item.name}</td>
+                            <td className="p-0 py-2">{mapGenderToUi(item.gender)}</td>
+                        </tr>
+                    ))}
                     </tbody>
                 </Table>
             )}
@@ -66,20 +58,14 @@ const SearchResultTable = ({ results, isLoading, error }) => (
     </div>
 );
 
-// ====================================================================
-// 💻 ArtistSearchPage 컴포넌트 시작
-// ====================================================================
-
 function ArtistSearchPage() {
     const navigate = useNavigate();
-    
-    // 필터 상태
+
     const [nameKeyword, setNameKeyword] = useState('');
     const [nameExact, setNameExact] = useState(false);
     const [gender, setGender] = useState('전체');
     const [role, setRole] = useState('전체');
-    
-    // 결과 상태
+
     const [results, setResults] = useState([]);
     const [showResults, setShowResults] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -92,29 +78,24 @@ function ArtistSearchPage() {
     // 1. 🔍 아티스트 검색 실행 (POST /api/artists/search)
     const handleSearch = async (e) => {
         e.preventDefault();
-        
+
         setIsLoading(true);
         setError(null);
-        setShowResults(true); // 결과 영역 표시
+        setShowResults(true);
 
-        // 폼 데이터를 API 요청 Body 형식으로 변환
         const filters = {
-            // 이름 키워드가 없으면 전송하지 않음
-            ...(nameKeyword.trim() && { nameKeyword: nameKeyword.trim() }), 
+            ...(nameKeyword.trim() && { nameKeyword: nameKeyword.trim() }),
             nameExact: nameExact,
-            // 성별이 '전체'면 null을 전송 (API 사양 [cite: 833]에 따라 null은 전체 검색)
             gender: mapGenderToApi(gender),
-            // 역할은 '전체'가 아니면 배열로 전송 (API 사양 )
-            ...(role !== '전체' && { roles: [role] }), 
+            ...(role !== '전체' && { roles: [role] }),
         };
 
         try {
-            // API 4.4.2 아티스트 검색
-            const response = await apiClient.post('/artists/search', filters); 
-            
-            // 응답 구조: { success: true, data: { artists: [..], totalCount: N } }
+            // API 경로 수정: /artists/search -> /api/artists/search
+            const response = await apiClient.post('/api/artists/search', filters);
+
             setResults(response.data.data.artists || []);
-            
+
         } catch (err) {
             console.error("아티스트 검색 오류:", err.response || err);
             const msg = err.response?.data?.message || "검색 중 오류가 발생했습니다. 필터 조건을 확인해주세요.";
@@ -132,7 +113,7 @@ function ArtistSearchPage() {
                     ← 뒤로가기
                 </Button>
             </div>
-            
+
             <h2 className="mb-4" style={{ fontWeight: 'bold' }}>아티스트 검색</h2>
 
             <Card className="p-4 shadow-sm" style={{ border: 'none', backgroundColor: 'white' }}>
@@ -140,28 +121,28 @@ function ArtistSearchPage() {
 
                     <Form.Group className="mb-4">
                         <Form.Label style={{ fontWeight: 'bold' }}>아티스트명</Form.Label>
-                        <Form.Control 
-                            type="text" 
-                            placeholder="아티스트명 입력" 
-                            className="mb-2" 
+                        <Form.Control
+                            type="text"
+                            placeholder="아티스트명 입력"
+                            className="mb-2"
                             value={nameKeyword}
                             onChange={(e) => setNameKeyword(e.target.value)}
                         />
                         <div className="d-flex">
-                            <Form.Check 
-                                type="radio" 
-                                label="포함" 
-                                name="artistNameMatch" 
-                                id="artistNameInclude" 
-                                defaultChecked 
-                                className="me-3" 
+                            <Form.Check
+                                type="radio"
+                                label="포함"
+                                name="artistNameMatch"
+                                id="artistNameInclude"
+                                defaultChecked
+                                className="me-3"
                                 onChange={() => setNameExact(false)}
                             />
-                            <Form.Check 
-                                type="radio" 
-                                label="완전일치" 
-                                name="artistNameMatch" 
-                                id="artistNameExact" 
+                            <Form.Check
+                                type="radio"
+                                label="완전일치"
+                                name="artistNameMatch"
+                                id="artistNameExact"
                                 onChange={() => setNameExact(true)}
                             />
                         </div>
@@ -173,7 +154,7 @@ function ArtistSearchPage() {
                             {GENDER_OPTIONS.map(genderOption => <option key={genderOption} value={genderOption}>{genderOption}</option>)}
                         </Form.Select>
                     </Form.Group>
-                    
+
                     <Form.Group className="mb-5">
                         <Form.Label style={{ fontWeight: 'bold' }}>역할</Form.Label>
                         <Form.Select value={role} onChange={(e) => setRole(e.target.value)}>

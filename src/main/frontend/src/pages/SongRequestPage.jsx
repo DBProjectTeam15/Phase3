@@ -5,28 +5,27 @@ import apiClient from '../api/apiClient.js';
 
 function SongRequestPage() {
     const navigate = useNavigate();
-    
+
     const [requests, setRequests] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
     const [showModal, setShowModal] = useState(false);
-    const [selectedRequestId, setSelectedRequestId] = useState(null); 
+    const [selectedRequestId, setSelectedRequestId] = useState(null);
 
-    // 1. 🖼️ 악곡 요청 목록 조회 (GET /song-requests) - 수정됨!
     const fetchRequests = async () => {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await apiClient.get('/song-requests'); 
-            
+            const response = await apiClient.get('/api/song-requests');
+
             const fetchedRequests = response.data.data.requests.map(req => ({
                 id: req.id,
                 title: req.title,
                 artist: req.artist,
                 requesterId: req.userld,
-                date: new Date(req.requestAt).toLocaleString('ko-KR', { 
-                    year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' 
+                date: new Date(req.requestAt).toLocaleString('ko-KR', {
+                    year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
                 }),
             }));
             setRequests(fetchedRequests);
@@ -38,7 +37,7 @@ function SongRequestPage() {
             setIsLoading(false);
         }
     };
-    
+
     useEffect(() => {
         fetchRequests();
     }, []);
@@ -52,19 +51,19 @@ function SongRequestPage() {
         setShowModal(true);
     };
 
-    // 2. 🗑️ 악곡 요청 삭제 (DELETE /song-requests/{requestId}) - 수정됨!
     const handleConfirmDelete = async () => {
         if (!selectedRequestId) return;
-        
+
         try {
-            await apiClient.delete(`/song-requests/${selectedRequestId}`); 
-            
+            // API 경로 수정: /song-requests/{id} -> /api/song-requests/{id}
+            await apiClient.delete(`/api/song-requests/${selectedRequestId}`);
+
             alert(`요청 ID ${selectedRequestId}가 삭제(처리)되었습니다.`);
-            fetchRequests(); 
+            fetchRequests();
 
         } catch (err) {
             if (err.response && err.response.status === 404) {
-                alert(`ID ${selectedRequestId}를 가진 요청을 찾을 수 없습니다.`); 
+                alert(`ID ${selectedRequestId}를 가진 요청을 찾을 수 없습니다.`);
             } else {
                 const msg = err.response?.data?.message || "요청 삭제 처리 중 오류가 발생했습니다.";
                 alert(msg);
@@ -87,7 +86,7 @@ function SongRequestPage() {
                     ← 뒤로가기
                 </Button>
             </div>
-            
+
             <h2 className="mb-1" style={{ fontWeight: 'bold' }}>악곡 요청 관리</h2>
             <p className="text-muted mb-4" style={{ fontSize: '0.9em' }}>사용자들이 요청한 악곡 목록을 확인하고 관리하세요</p>
 
@@ -101,34 +100,34 @@ function SongRequestPage() {
                     ) : (
                         <Table borderless responsive>
                             <thead style={{ color: '#555' }}>
-                                <tr>
-                                    <th className="p-0 pb-2 border-bottom">요청 ID</th>
-                                    <th className="p-0 pb-2 border-bottom">곡명</th>
-                                    <th className="p-0 pb-2 border-bottom">아티스트</th>
-                                    <th className="p-0 pb-2 border-bottom">신청자 ID</th>
-                                    <th className="p-0 pb-2 border-bottom">요청 일시</th>
-                                    <th className="p-0 pb-2 border-bottom">작업</th>
-                                </tr>
+                            <tr>
+                                <th className="p-0 pb-2 border-bottom">요청 ID</th>
+                                <th className="p-0 pb-2 border-bottom">곡명</th>
+                                <th className="p-0 pb-2 border-bottom">아티스트</th>
+                                <th className="p-0 pb-2 border-bottom">신청자 ID</th>
+                                <th className="p-0 pb-2 border-bottom">요청 일시</th>
+                                <th className="p-0 pb-2 border-bottom">작업</th>
+                            </tr>
                             </thead>
                             <tbody>
-                                {requests.map((req) => (
-                                    <tr key={req.id}>
-                                        <td className="p-0 py-2">{req.id}</td>
-                                        <td className="p-0 py-2">{req.title}</td>
-                                        <td className="p-0 py-2">{req.artist}</td>
-                                        <td className="p-0 py-2">{req.requesterId}</td>
-                                        <td className="p-0 py-2">{req.date}</td>
-                                        <td className="p-0 py-2">
-                                            <Button 
-                                                variant="link" 
-                                                onClick={() => handleShowDeleteModal(req.id)}
-                                                style={{ color: '#dc3545', padding: '0' }}
-                                            >
-                                                🗑️ 완료 처리
-                                            </Button>
-                                        </td>
-                                    </tr>
-                                ))}
+                            {requests.map((req) => (
+                                <tr key={req.id}>
+                                    <td className="p-0 py-2">{req.id}</td>
+                                    <td className="p-0 py-2">{req.title}</td>
+                                    <td className="p-0 py-2">{req.artist}</td>
+                                    <td className="p-0 py-2">{req.requesterId}</td>
+                                    <td className="p-0 py-2">{req.date}</td>
+                                    <td className="p-0 py-2">
+                                        <Button
+                                            variant="link"
+                                            onClick={() => handleShowDeleteModal(req.id)}
+                                            style={{ color: '#dc3545', padding: '0' }}
+                                        >
+                                            🗑️ 완료 처리
+                                        </Button>
+                                    </td>
+                                </tr>
+                            ))}
                             </tbody>
                         </Table>
                     )}

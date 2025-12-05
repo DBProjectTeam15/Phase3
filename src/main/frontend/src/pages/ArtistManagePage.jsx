@@ -38,7 +38,6 @@ function ArtistManagePage() {
     const [checkArtistId, setCheckArtistId] = useState('');
     const [checkedArtistInfo, setCheckedArtistInfo] = useState(null);
 
-    // 1. 🖼️ 아티스트 목록 조회 (GET /artists)
     const fetchArtists = async () => {
         setIsLoading(true);
         setError(null);
@@ -68,7 +67,6 @@ function ArtistManagePage() {
         navigate(-1);
     };
 
-    // 2. 🔍 아티스트 정보 확인 (GET /artists/{artistId})
     const handleCheckInfo = () => {
         setShowCheckInfoModal(true);
         setCheckedArtistInfo(null);
@@ -107,7 +105,6 @@ function ArtistManagePage() {
         }
     };
 
-    // 3. ➕ 아티스트 추가 (POST /artists)
     const handleAddArtist = () => {
         setShowAddArtistModal(true);
     };
@@ -143,7 +140,6 @@ function ArtistManagePage() {
         }
     };
 
-    // 4. 🗑️ 아티스트 삭제 (DELETE /artists/{artistId})
     const handleDeleteArtist = () => {
         setShowDeleteArtistModal(true);
     };
