@@ -7,8 +7,9 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
-public class ProviderDto {
+public class SongViewDto {
     private long id;
-    private String name;
-    private String link;
+    private String title;
+    private String playLink;
+    private String artistName;
 }
