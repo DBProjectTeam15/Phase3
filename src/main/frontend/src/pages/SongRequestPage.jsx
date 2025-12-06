@@ -19,15 +19,16 @@ function SongRequestPage() {
         try {
             const response = await apiClient.get('/api/song-requests');
 
-            const fetchedRequests = response.data.data.requests.map(req => ({
+            const fetchedRequests = response.data.map(req => ({
                 id: req.id,
                 title: req.title,
                 artist: req.artist,
-                requesterId: req.userld,
-                date: new Date(req.requestAt).toLocaleString('ko-KR', {
+                requesterId: req.requestUserId,
+                date: new Date(req.requestedAt).toLocaleString('ko-KR', {
                     year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
                 }),
             }));
+
             setRequests(fetchedRequests);
         } catch (err) {
             console.error("악곡 요청 목록 로드 오류:", err.response || err);
@@ -138,7 +139,7 @@ function SongRequestPage() {
                 <Modal.Header closeButton>
                     <Modal.Title>요청 삭제(처리) 확인</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>요청 ID **{selectedRequestId}**에 대한 처리를 완료하고 목록에서 삭제하시겠습니까?</Modal.Body>
+                <Modal.Body>요청 ID {selectedRequestId}에 대한 처리를 완료하고 목록에서 삭제하시겠습니까?</Modal.Body>
                 <Modal.Footer>
                     <Button variant="danger" onClick={handleConfirmDelete}>
                         예, 삭제합니다

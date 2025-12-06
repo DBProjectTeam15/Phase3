@@ -305,7 +305,7 @@ function MyPage() {
                 <Modal.Header closeButton>
                     <Modal.Title>계정 삭제</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>정말 계정을 영구적으로 삭제하시겠습니까? **이 작업은 되돌릴 수 없습니다.**</Modal.Body>
+                <Modal.Body>정말 계정을 영구적으로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.</Modal.Body>
                 <Modal.Footer>
                     <Button variant="danger" onClick={handleAccountDeletion}>
                         예, 계정을 삭제합니다

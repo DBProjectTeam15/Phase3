@@ -65,6 +65,17 @@ function AdminPage() {
 
     const navigate = useNavigate();
 
+    useEffect(() => {
+        (async () => {
+            const res = await apiClient.get("/api/manager/me");
+            if (res.status === 200) {
+
+                setIsAdminLoggedIn(true);
+                setAdminId(res.data.id);
+            }
+        })()
+    })
+
     const handleLogin = async (e) => {
         e.preventDefault();
 
@@ -76,16 +87,11 @@ function AdminPage() {
         setIsLoggingIn(true);
         try {
             const response = await apiClient.post('/api/manager/login', {
-                username: idInput,
+                id: idInput,
                 password: passwordInput,
             });
 
-            const tokenValue = 'manager-session-' + Date.now();
-
-            localStorage.setItem(MANAGER_TOKEN_KEY, tokenValue);
-            localStorage.setItem(MANAGER_ID_KEY, response.data.data.username);
-
-            setAdminId(response.data.data.username);
+            setAdminId(response.data.id);
             setIsAdminLoggedIn(true);
 
             alert(response.data.message || '관리자 로그인에 성공했습니다.');

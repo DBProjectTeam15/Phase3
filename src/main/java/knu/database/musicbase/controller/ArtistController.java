@@ -45,6 +45,11 @@ public class ArtistController {
         return artistRepository.searchArtists(name, gender, role, sortBy, sortOrder);
     }
 
+    @GetMapping
+    public ResponseEntity<List<ArtistDto>> findAllArtists() {
+        return ResponseEntity.ok(artistRepository.findAll());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ArtistDto> getArtistDetails(@PathVariable long id) {
         return ResponseEntity.ok(artistRepository.findById(id));
