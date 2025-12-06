@@ -42,9 +42,9 @@ function ArtistManagePage() {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await apiClient.get('/artists'); 
+            const response = await apiClient.get('/api/artists');
             
-            const fetchedArtists = response.data.data.artists.map(artist => ({
+            const fetchedArtists = response.data.map(artist => ({
                 id: artist.id,
                 name: artist.name,
                 gender: mapGenderToUi(artist.gender),
@@ -87,7 +87,7 @@ function ArtistManagePage() {
         }
 
         try {
-            const response = await apiClient.get(`/artists/${idToSearch}`); 
+            const response = await apiClient.get(`/api/artists/${idToSearch}`);
             
             const artistData = response.data.data;
             setCheckedArtistInfo({
@@ -124,12 +124,12 @@ function ArtistManagePage() {
         const apiGender = mapGenderToApi(newArtistGender);
         
         try {
-            const response = await apiClient.post('/artists', { 
+            const response = await apiClient.post('/api/artists', { 
                 name: newArtistName,
                 gender: apiGender,
             });
             
-            alert(response.data.message || `${response.data.data.name}이/가 성공적으로 추가되었습니다.`);
+            alert(`${response.data.name}이/가 성공적으로 추가되었습니다.`);
             handleCloseAddArtistModal();
             fetchArtists(); 
             
@@ -157,9 +157,9 @@ function ArtistManagePage() {
         }
 
         try {
-            const response = await apiClient.delete(`/artists/${idToDelete}`);
+            const response = await apiClient.delete(`/api/artists/${idToDelete}`);
             
-            alert(response.data.message || `아티스트 ID ${idToDelete}가 삭제되었습니다.`);
+            alert(`아티스트 ID ${idToDelete}가 삭제되었습니다.`);
             handleCloseDeleteArtistModal();
             fetchArtists(); 
 
@@ -266,9 +266,9 @@ function ArtistManagePage() {
                         {checkedArtistInfo && (
                             <Card className="mt-4 p-3" style={{ backgroundColor: '#f9f9f9', border: '1px solid #ddd' }}>
                                 <h5 style={{ fontWeight: 'bold' }}>조회 결과</h5>
-                                <p className="mb-1">ID: **{checkedArtistInfo.id}**</p>
-                                <p className="mb-1">이름: **{checkedArtistInfo.name}**</p>
-                                <p className="mb-0">성별: **{checkedArtistInfo.gender}**</p>
+                                <p className="mb-1">ID: {checkedArtistInfo.id}</p>
+                                <p className="mb-1">이름: {checkedArtistInfo.name}</p>
+                                <p className="mb-0">성별: {checkedArtistInfo.gender}</p>
                             </Card>
                         )}
                         

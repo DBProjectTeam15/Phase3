@@ -73,6 +73,15 @@ public class ArtistRepository {
         }
     }
 
+    public List<ArtistDto> findAll() {
+        String sql = "SELECT Artist_id, Name, Gender FROM ARTISTS";
+        try {
+            return jdbcTemplate.query(sql, new ArtistRowMapper());
+        } catch (EmptyResultDataAccessException e) {
+            return null; // 또는 예외 처리
+        }
+    }
+
     public ArtistDto save(ArtistDto artistDto) {
         String sql = "INSERT INTO ARTISTS (Name, Gender) VALUES (?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();

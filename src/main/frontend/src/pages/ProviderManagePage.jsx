@@ -22,7 +22,7 @@ function ProviderManagePage() {
         try {
             const response = await apiClient.get('/api/providers');
 
-            const fetchedProviders = response.data.data.providers;
+            const fetchedProviders = response.data;
             setProviders(fetchedProviders);
         } catch (err) {
             console.error("제공원 목록 로드 오류:", err.response || err);
@@ -181,7 +181,7 @@ function ProviderManagePage() {
                 <Modal.Header closeButton>
                     <Modal.Title>제공원 삭제 확인</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>정말 제공원 ID **{selectedProviderId}**를 삭제하시겠습니까?</Modal.Body>
+                <Modal.Body>정말 제공원 ID {selectedProviderId}를 삭제하시겠습니까?</Modal.Body>
                 <Modal.Footer>
                     <Button variant="danger" onClick={handleConfirmDelete}>
                         예, 삭제합니다
