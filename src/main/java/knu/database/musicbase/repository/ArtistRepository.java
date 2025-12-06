@@ -1,9 +1,12 @@
 package knu.database.musicbase.repository;
 
 import knu.database.musicbase.dto.ArtistDto;
+import lombok.RequiredArgsConstructor;
+import org.jooq.Require;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -15,15 +18,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Repository
+@Component
+@RequiredArgsConstructor
 public class ArtistRepository {
 
     private final JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public ArtistRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     public List<ArtistDto> searchArtists(String name, String gender, String role, String sortBy, String sortOrder) {
         StringBuilder sql = new StringBuilder("SELECT Artist_id, Name, Gender FROM ARTISTS a WHERE 1=1 ");
@@ -65,7 +64,7 @@ public class ArtistRepository {
         return jdbcTemplate.query(sql.toString(), params.toArray(), new ArtistRowMapper());
     }
 
-    public ArtistDto getArtistDetails(long id) {
+    public ArtistDto findById(long id) {
         String sql = "SELECT Artist_id, Name, Gender FROM ARTISTS WHERE Artist_id = ?";
         try {
             return jdbcTemplate.queryForObject(sql, new ArtistRowMapper(), id);
@@ -74,29 +73,29 @@ public class ArtistRepository {
         }
     }
 
-    public ArtistDto addArtist(ArtistDto artistDto) {
+    public ArtistDto save(ArtistDto artistDto) {
         String sql = "INSERT INTO ARTISTS (Name, Gender) VALUES (?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
-            // "Artist_id" 컬럼의 자동 생성된 키를 반환받겠다고 명시
             PreparedStatement ps = connection.prepareStatement(sql, new String[]{"Artist_id"});
             ps.setString(1, artistDto.getName());
             ps.setString(2, artistDto.getGender());
             return ps;
         }, keyHolder);
 
-        // 생성된 ID 추출
         Number key = keyHolder.getKey();
         long generatedId = (key != null) ? key.longValue() : -1;
 
-        return new ArtistDto(generatedId, artistDto.getName(), artistDto.getGender());
+        return ArtistDto.builder()
+                .id(generatedId)
+                .name(artistDto.getName())
+                .gender(artistDto.getGender())
+                .build();
     }
 
-    // 4. 아티스트 삭제
-    public ArtistDto deleteArtist(Long id) {
-        // 삭제된 정보를 반환해야 하므로 먼저 조회
-        ArtistDto artistToDelete = getArtistDetails(id);
+    public ArtistDto delete(long id) {
+        ArtistDto artistToDelete = findById(id);
 
         if (artistToDelete != null) {
             String sql = "DELETE FROM ARTISTS WHERE Artist_id = ?";
@@ -109,11 +108,11 @@ public class ArtistRepository {
     private static class ArtistRowMapper implements RowMapper<ArtistDto> {
         @Override
         public ArtistDto mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new ArtistDto(
-                    rs.getLong("Artist_id"),
-                    rs.getString("Name"),
-                    rs.getString("Gender")
-            );
+            return ArtistDto.builder()
+                    .id(rs.getLong("Artist_id"))
+                    .name(rs.getString("Name"))
+                    .gender(rs.getString("gender"))
+                    .build();
         }
     }
 }

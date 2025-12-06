@@ -1,11 +1,15 @@
 package knu.database.musicbase.controller;
 
 
+import jakarta.servlet.http.HttpSession;
 import knu.database.musicbase.dto.ArtistDto;
+import knu.database.musicbase.enums.AuthType;
 import knu.database.musicbase.repository.ArtistRepository;
 
+import knu.database.musicbase.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +28,8 @@ public class ArtistController {
 
     @Autowired
     private ArtistRepository artistRepository;
+    @Autowired
+    private AuthService authService;
 
 
     // 아티스트 검색
@@ -40,29 +46,32 @@ public class ArtistController {
     }
 
     @GetMapping("/{id}")
-    public ArtistDto getArtistDetails(@PathVariable long id) {
-        return artistRepository.getArtistDetails(id);
+    public ResponseEntity<ArtistDto> getArtistDetails(@PathVariable long id) {
+        return ResponseEntity.ok(artistRepository.findById(id));
     }
 
     // 아티스트 생성
-    @PostMapping("")
-    public ArtistDto addArtist(@RequestBody ArtistDto artistDto) {
-        return artistRepository.addArtist(artistDto);
+    @PostMapping
+    public ResponseEntity<ArtistDto> addArtist(@RequestBody ArtistDto artistDto, HttpSession session) {
+        var authType = authService.getAuthType(session);
+        if (authType == AuthType.MANAGER) {
+            return ResponseEntity.ok(artistRepository.save(artistDto));
+        }
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
     
     // 아티스트 삭제
     @DeleteMapping("/{id}")
-    public ResponseEntity<ArtistDto> deleteArtist(@PathVariable Long id) {
-        ArtistDto deletedArtist = artistRepository.deleteArtist(id);
-
-        if (deletedArtist != null) {
-            // 성공 시: 200 OK와 함께 삭제된 정보 반환
+    public ResponseEntity<ArtistDto> deleteArtist(@PathVariable Long id, HttpSession session) {
+        var authType = authService.getAuthType(session);
+        if (authType == AuthType.MANAGER) {
+            ArtistDto deletedArtist = artistRepository.delete(id);
             return ResponseEntity.ok(deletedArtist);
-        } else {
-            // 실패 시(대상이 없을 때): 404 Not Found 반환
-            return ResponseEntity.notFound().build();
         }
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
 }

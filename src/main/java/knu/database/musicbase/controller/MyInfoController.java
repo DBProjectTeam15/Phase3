@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpSession;
 import knu.database.musicbase.dto.MyInfoDto;
 import knu.database.musicbase.dto.UserUpdateRequestDto;
 import knu.database.musicbase.dto.UserDto;
+import knu.database.musicbase.enums.AuthType;
 import knu.database.musicbase.service.AuthService;
 import knu.database.musicbase.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -35,12 +36,13 @@ public class MyInfoController {
     @GetMapping("/manager/me")
     public ResponseEntity<UserDto> getManagerInfo(HttpSession session) {
         UserDto managerInfo = authService.getLoggedInUser(session);
-
-        if (managerInfo == null) {
+        AuthType authType = authService.getAuthType(session);
+        if (authType == AuthType.MANAGER) {
+            return ResponseEntity.ok(managerInfo);
+        }
+        else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-
-        return ResponseEntity.ok(managerInfo);
     }
 
     // 내 정보 수정

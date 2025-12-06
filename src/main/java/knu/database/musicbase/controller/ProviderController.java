@@ -1,8 +1,12 @@
 package knu.database.musicbase.controller;
 
+import jakarta.servlet.http.HttpSession;
 import knu.database.musicbase.dto.ProviderDto;
+import knu.database.musicbase.enums.AuthType;
 import knu.database.musicbase.repository.ProviderRepository;
+import knu.database.musicbase.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +18,8 @@ public class ProviderController {
 
     @Autowired
     ProviderRepository providerRepository;
+    @Autowired
+    private AuthService authService;
 
     // 1. 제공원 검색
     @GetMapping("/search")
@@ -24,6 +30,11 @@ public class ProviderController {
             @RequestParam(required = false, defaultValue = "asc") String sortOrder
     ) {
         return providerRepository.searchProviders(name, link, sortBy, sortOrder);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ProviderDto>> getAllProviders() {
+        return ResponseEntity.ok(providerRepository.findAll());
     }
 
     // 제공원 정보 조회
@@ -40,15 +51,14 @@ public class ProviderController {
 
     // 제공원 삭제
     @DeleteMapping("/{id}")
-    public ResponseEntity<ProviderDto> deleteProvider(@PathVariable Long id) {
-        ProviderDto deletedProvider = providerRepository.deleteProvider(id);
+    public ResponseEntity<ProviderDto> deleteProvider(@PathVariable Long id, HttpSession session) {
 
-        if (deletedProvider != null) {
-            // 성공 시: 200 OK
+        var authType = authService.getAuthType(session);
+        if (authType == AuthType.MANAGER) {
+            ProviderDto deletedProvider = providerRepository.deleteProvider(id);
             return ResponseEntity.ok(deletedProvider);
-        } else {
-            // 실패 시: 404 Not Found
-            return ResponseEntity.notFound().build();
         }
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 }

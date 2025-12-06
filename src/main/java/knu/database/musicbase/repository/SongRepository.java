@@ -122,7 +122,7 @@ public class SongRepository {
     // 2. 전체 음원 조회
     public List<SongDetailDto> getAllSongs() {
         // 조건 없이 기본 쿼리 + 정렬 수행
-        String sql = BASE_SELECT_SQL + "ORDER BY s.Song_id DESC"; // 최신 등록순 등 기본 정렬
+        String sql = BASE_SELECT_SQL; // 최신 등록순 등 기본 정렬
         return jdbcTemplate.query(sql, new SongRowMapper());
     }
 

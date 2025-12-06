@@ -68,6 +68,16 @@ public class ProviderRepository {
         }
     }
 
+    // 2. ID로 제공원 단건 조회
+    public List<ProviderDto> findAll() {
+        String sql = "SELECT Provider_id, Provider_name, Provider_link FROM PROVIDERS";
+        try {
+            return jdbcTemplate.query(sql, new ProviderRowMapper());
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
     // 3. 제공원 추가 (KeyHolder 사용)
     public ProviderDto addProvider(ProviderDto providerDto) {
         String sql = "INSERT INTO PROVIDERS (Provider_name, Provider_link) VALUES (?, ?)";

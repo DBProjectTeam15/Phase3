@@ -2,30 +2,38 @@ package knu.database.musicbase.controller;
 
 import jakarta.servlet.http.HttpSession;
 import knu.database.musicbase.dto.CommentDto;
+import knu.database.musicbase.dto.UserDto;
 import knu.database.musicbase.repository.CommentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import knu.database.musicbase.service.AuthService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RequestMapping("/api/comments")
 @RestController
+@RequiredArgsConstructor
 public class CommentController {
 
-    @Autowired
-    CommentRepository commentRepository;
+    private final CommentRepository commentRepository;
+    private final AuthService authService;
 
     // 1. 내가 작성한 댓글 보기
-    // GET /api/comments/my
-    @GetMapping("/my")
-    public List<CommentDto> getMyComments(HttpSession session) {
-        return commentRepository.getMyComments(session);
+    // GET /api/comments
+    @GetMapping
+    public ResponseEntity<List<CommentDto>> getMyComments(HttpSession session) {
+        UserDto userDto = authService.getLoggedInUser(session);
+        if (userDto == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        return ResponseEntity.ok(commentRepository.findCommentsByUserId(userDto.getId()));
     }
 
-    // 2. 플레이리스트에 작성된 댓글 보기
-    // GET /api/comments/playlist/{playlistId}
-    @GetMapping("/playlist/{playlistId}")
+    @GetMapping("/playlists/{playlistId}")
     public List<CommentDto> getPlaylistComments(@PathVariable long playlistId) {
-        return commentRepository.getPlaylistComments(playlistId);
+        return commentRepository.findCommentsByPlaylistId(playlistId);
     }
 }
