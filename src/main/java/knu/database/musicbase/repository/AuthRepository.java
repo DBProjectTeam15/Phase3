@@ -19,37 +19,36 @@ public class AuthRepository {
     }
 
     // 1. 일반 유저 로그인
-    public boolean login(UserLoginDto userLoginDto, HttpSession session) {
-        String sql = "SELECT User_id FROM USERS WHERE Email = ? AND Password = ?";
+    public long findByUserId(UserLoginDto userLoginDto) {
         try {
-            // 이메일과 비밀번호가 일치하는 유저의 ID 조회
+            String sql = "SELECT User_id FROM USERS WHERE Email = ? AND Password = ?";
             Long userId = jdbcTemplate.queryForObject(sql, Long.class,
                     userLoginDto.getEmail(), userLoginDto.getPassword());
+            if  (userId == null) {
+                throw new EmptyResultDataAccessException(1);
+            }
 
-            // 로그인 성공 시 세션 저장
-            session.setAttribute("id_type", "user");
-            session.setAttribute("user_id", userId);
-            return true;
-
-        } catch (EmptyResultDataAccessException e) {
-            return false; // 로그인 실패
+            return userId;
+        }
+        catch (EmptyResultDataAccessException e) {
+            throw new IllegalArgumentException("User not found");
         }
     }
 
     // 2. 관리자 로그인
-    public boolean managerLogin(ManagerLoginDto managerLoginDto, HttpSession session) {
-        String sql = "SELECT Manager_id FROM MANAGERS WHERE Manager_id = ? AND Password = ?";
+    public String findByManagerId(ManagerLoginDto managerLoginDto) {
         try {
+            String sql = "SELECT Manager_id FROM MANAGERS WHERE Manager_id = ? AND Password = ?";
+
             String managerId = jdbcTemplate.queryForObject(sql, String.class,
                     managerLoginDto.getId(), managerLoginDto.getPassword());
 
-            // 로그인 성공 시 세션 저장
-            session.setAttribute("id_type", "manager");
-            session.setAttribute("manager_id", managerId);
-            return true;
+            if (managerId == null) throw new IllegalArgumentException("Manager not found");
 
-        } catch (EmptyResultDataAccessException e) {
-            return false;
+            return managerId;
+        }
+        catch (EmptyResultDataAccessException e) {
+            throw new IllegalArgumentException("Manager not found");
         }
     }
 
@@ -70,24 +69,5 @@ public class AuthRepository {
         return true;
     }
 
-    // 4. 계정 삭제
-    public boolean deleteAccount(HttpSession session) {
-        String idType = (String) session.getAttribute("id_type");
-        Long userId = (Long) session.getAttribute("user_id");
 
-        // 로그인 안 했거나, 유저가 아닌 경우(관리자 등) 실패 처리
-        if (idType == null || !"user".equals(idType) || userId == null) {
-            return false;
-        }
-
-        // DB 삭제
-        String sql = "DELETE FROM USERS WHERE User_id = ?";
-        int updated = jdbcTemplate.update(sql, userId);
-
-        if (updated > 0) {
-            session.invalidate(); // 삭제 후 로그아웃 처리
-            return true;
-        }
-        return false;
-    }
 }
