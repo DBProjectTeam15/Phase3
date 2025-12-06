@@ -3,6 +3,7 @@ package knu.database.musicbase.dao;
 import knu.database.musicbase.data.Artist;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
  * );
  */
 @Slf4j
+@Component
 public class ArtistDAO extends BasicDataAccessObjectImpl<Artist, Long> {
 
     @Override
