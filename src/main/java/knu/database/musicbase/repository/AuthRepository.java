@@ -53,6 +53,7 @@ public class AuthRepository {
         }
     }
 
+
     // 3. 로그아웃 (공통)
     public boolean logout(HttpSession session) {
         if (session.getAttribute("id_type") == null) {

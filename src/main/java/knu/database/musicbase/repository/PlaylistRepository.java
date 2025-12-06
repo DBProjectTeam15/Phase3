@@ -30,9 +30,9 @@ public class PlaylistRepository {
         String sql = """
             SELECT p.PLAYLIST_ID, p.TITLE, p.IS_COLLABORATIVE, p.OWNER_ID
             FROM PLAYLIST p
-            LEFT JOIN PLAYLIST_SONG ps ON p.PLAYLIST_ID = ps.PLAYLIST_ID
+            LEFT JOIN CONSISTED_OF co ON p.PLAYLIST_ID = co.PLAYLIST_ID
             GROUP BY p.PLAYLIST_ID, p.TITLE, p.IS_COLLABORATIVE, p.OWNER_ID
-            ORDER BY COUNT(ps.SONG_ID) DESC
+            ORDER BY COUNT(co.SONG_ID) DESC
             LIMIT 10
         """;
         return jdbcTemplate.query(sql, playlistMapper);
@@ -49,15 +49,15 @@ public class PlaylistRepository {
     public List<PlaylistDto> getPlaylistBySong(Long songId) {
         String sql = """
             SELECT DISTINCT p.* FROM PLAYLIST p
-            JOIN PLAYLIST_SONG ps ON p.PLAYLIST_ID = ps.PLAYLIST_ID
-            WHERE ps.SONG_ID = ?
+            JOIN CONSISTED_OF co ON p.PLAYLIST_ID = co.PLAYLIST_ID
+            WHERE co.SONG_ID = ?
         """;
         return jdbcTemplate.query(sql, playlistMapper, songId);
     }
 
     // 4. 내가 소유한 플리 (세션 사용)
     public List<PlaylistDto> getMyPlaylists(HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
+        Long userId = (Long) session.getAttribute("user_id");
         if (userId == null) return List.of(); // 비로그인 시 빈 리스트 반환
 
         String sql = "SELECT * FROM PLAYLIST WHERE OWNER_ID = ?";
@@ -70,16 +70,16 @@ public class PlaylistRepository {
     }
 
     // 6. 편집 가능한 플리 (세션 사용)
-    // 조건: 내가 Owner이거나, PLAYLIST_MEMBER 테이블에서 내 권한이 'EDIT'인 경우
+    // 조건: 내가 Owner이거나, EDITS 테이블에서 내에 존재할경우
     public List<PlaylistDto> getEditablePlaylists(HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
+        Long userId = (Long) session.getAttribute("user_id");
         if (userId == null) return List.of();
 
         String sql = """
             SELECT DISTINCT p.* FROM PLAYLIST p
-            LEFT JOIN PLAYLIST_MEMBER pm ON p.PLAYLIST_ID = pm.PLAYLIST_ID
+            LEFT JOIN EDITS ed ON p.PLAYLIST_ID = ed.PLAYLIST_ID
             WHERE p.OWNER_ID = ? 
-               OR (pm.USER_ID = ? AND pm.PERMISSION = 'EDIT')
+               OR ed.USER_ID = ?
         """;
         return jdbcTemplate.query(sql, playlistMapper, userId, userId);
     }
@@ -111,13 +111,13 @@ public class PlaylistRepository {
 
         // 최소 수록곡 수 (서브쿼리 활용)
         if (songCount != null) {
-            sql.append("AND (SELECT COUNT(*) FROM PLAYLIST_SONG ps WHERE ps.PLAYLIST_ID = p.PLAYLIST_ID) >= ? ");
+            sql.append("AND (SELECT COUNT(*) FROM CONSISTED_OF co WHERE co.PLAYLIST_ID = p.PLAYLIST_ID) >= ? ");
             params.add(songCount);
         }
 
         // 최소 댓글 수
         if (commentCount != null) {
-            sql.append("AND (SELECT COUNT(*) FROM PLAYLIST_COMMENT pc WHERE pc.PLAYLIST_ID = p.PLAYLIST_ID) >= ? ");
+            sql.append("AND (SELECT COUNT(*) FROM COMMENTS pc WHERE pc.PLAYLIST_ID = p.PLAYLIST_ID) >= ? ");
             params.add(commentCount);
         }
 
@@ -125,16 +125,16 @@ public class PlaylistRepository {
         if (totalLength != null) {
             sql.append("""
                 AND (SELECT COALESCE(SUM(s.LENGTH), 0) 
-                     FROM PLAYLIST_SONG ps 
-                     JOIN SONG s ON ps.SONG_ID = s.SONG_ID 
-                     WHERE ps.PLAYLIST_ID = p.PLAYLIST_ID) >= ? 
+                     FROM CONSISTED_OF co 
+                     JOIN SONG s ON co.SONG_ID = s.SONG_ID 
+                     WHERE co.PLAYLIST_ID = p.PLAYLIST_ID) >= ? 
             """);
             params.add(totalLength);
         }
 
         // 정렬 (SQL Injection 방지를 위해 화이트리스트 검사 권장)
         String sortColumn = "p.TITLE"; // 기본값
-        if ("songCount".equals(sortBy)) sortColumn = "(SELECT COUNT(*) FROM PLAYLIST_SONG ps WHERE ps.PLAYLIST_ID = p.PLAYLIST_ID)";
+        if ("songCount".equals(sortBy)) sortColumn = "(SELECT COUNT(*) FROM CONSISTED_OF co WHERE co.PLAYLIST_ID = p.PLAYLIST_ID)";
         else if ("date".equals(sortBy)) sortColumn = "p.CREATED_AT"; // 생성일 컬럼이 있다면
 
         String order = "DESC".equalsIgnoreCase(sortOrder) ? "DESC" : "ASC";

@@ -1,6 +1,7 @@
 package knu.database.musicbase.repository;
 
 import knu.database.musicbase.dto.SongDto;
+import knu.database.musicbase.dto.SongAddDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -138,38 +139,28 @@ public class SongRepository {
     }
 
     // 4. 음원 추가 (INSERT)
-    public SongDto addSong(SongDto songDto) {
-        // 4-1. Provider Name으로 Provider ID 조회 (없으면 예외 발생 가능성 있음, 여기선 존재하는 것으로 가정)
+    public SongDto addSong(SongAddDto songAddDto) {
+
         // 실제 로직에선 Provider가 없으면 생성하거나 에러를 뱉어야 합니다.
-        String findProviderSql = "SELECT Provider_id FROM PROVIDERS WHERE Provider_name = ?";
-        Long providerId;
-        try {
-            providerId = jdbcTemplate.queryForObject(findProviderSql, Long.class, songDto.getProviderName());
-        } catch (EmptyResultDataAccessException e) {
-            // 편의상 Provider가 없으면 null 처리하거나 임의의 값, 혹은 에러 처리
-            throw new RuntimeException("존재하지 않는 제공자입니다: " + songDto.getProviderName());
-        }
+        String findProviderSql = "SELECT Provider_id FROM PROVIDERS WHERE Provider_id = ?";
 
         // 4-2. SONGS 테이블 INSERT
         String insertSql = "INSERT INTO SONGS (Song_id, Title, Play_link, Length, Create_at, Provider_id) " +
-                "VALUES (SONGS_SEQ.NEXTVAL, ?, ?, ?, SYSTIMESTAMP, ?)"; // 시퀀스 사용 가정
+                "VALUES (SONGS_SEQ.NEXTVAL, ?, ?, ?, ?, ?)"; // 시퀀스 사용 가정
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(insertSql, new String[]{"Song_id"});
-            ps.setString(1, songDto.getTitle());
-            ps.setString(2, songDto.getPlayLink());
-            ps.setInt(3, songDto.getLength());
-            // Create_at은 현재 시간(SYSTIMESTAMP)으로 입력
-            ps.setLong(4, providerId);
+            ps.setString(1, songAddDto.getTitle());
+            ps.setString(2, songAddDto.getPlayLink());
+            ps.setInt(3, songAddDto.getLength());
+            ps.setString(4, songAddDto.getCreateAt());
+            ps.setLong(5, songAddDto.getProviderId());
             return ps;
         }, keyHolder);
 
         long newSongId = keyHolder.getKey().longValue();
 
-        // 4-3. 아티스트 매핑 (MADE_BY 테이블) - 생략 또는 구현 필요
-        // DTO에 들어온 artistName(예: "IU")을 이용해 ARTISTS 테이블 ID 조회 후 MADE_BY에 INSERT 하는 로직 필요
-        // 여기서는 복잡도를 줄이기 위해 생략하고, 추가된 곡 정보를 다시 조회하여 반환합니다.
 
         return getSongDetails(newSongId);
     }

@@ -21,11 +21,11 @@ public class SongRequestRepository {
     private final RowMapper<SongRequestViewDto> requestMapper = (rs, rowNum) ->
             SongRequestViewDto.builder()
                     .id(rs.getLong("REQUEST_ID"))
-                    .title(rs.getString("TITLE"))
-                    .artist(rs.getLong("ARTIST_ID"))
-                    .requestUserId(rs.getLong("USER_ID"))
-                    .requestAt(rs.getTimestamp("CREATED_AT") != null ?
-                            rs.getTimestamp("CREATED_AT").toLocalDateTime() : null)
+                    .RequestSongTitle(rs.getString("REQUEST_SONG_TITLE"))
+                    .RequestSongArtist(rs.getString("REQUEST_SONG_ARTIST"))
+                    .UserId(rs.getLong("USER_ID"))
+                    .requestAt(rs.getTimestamp("REQUEST_AT") != null ?
+                            rs.getTimestamp("REQUEST_AT").toLocalDateTime() : null)
                     .build();
 
     // 1. 요청 검색 (제목, 아티스트 이름, 담당자 등)
@@ -34,12 +34,12 @@ public class SongRequestRepository {
 
         // 기본 쿼리: SONG_REQUESTS 테이블
         // 아티스트 이름 검색을 위해 ARTISTS 테이블 조인이 필요할 수 있음
-        sql.append("SELECT sr.REQUEST_ID, sr.TITLE, sr.ARTIST_ID, sr.USER_ID, sr.CREATED_AT ");
+        sql.append("SELECT sr.REQUEST_ID, sr.REQUEST_SONG_TITLE, sr.REQUEST_SONG_ARTIST, sr.USER_ID, sr.REQUEST_AT ");
         sql.append("FROM SONG_REQUESTS sr ");
 
         // 아티스트 이름으로 검색하는 경우 조인 추가
         if (artistName != null && !artistName.trim().isEmpty()) {
-            sql.append("JOIN ARTISTS a ON sr.ARTIST_ID = a.ARTIST_ID ");
+            sql.append("JOIN ARTISTS a ON sr.REQUEST_SONG_ARTIST = a.REQUEST_SONG_ARTIST ");
         }
 
         sql.append("WHERE 1=1 ");
@@ -47,7 +47,7 @@ public class SongRequestRepository {
 
         // 제목 검색
         if (title != null && !title.trim().isEmpty()) {
-            sql.append("AND LOWER(sr.TITLE) LIKE LOWER(?) ");
+            sql.append("AND LOWER(sr.REQUEST_SONG_TITLE) LIKE LOWER(?) ");
             params.add("%" + title + "%");
         }
 
@@ -64,8 +64,8 @@ public class SongRequestRepository {
         }
 
         // 정렬
-        String sortColumn = "sr.CREATED_AT"; // 기본값
-        if ("title".equalsIgnoreCase(sortBy)) sortColumn = "sr.TITLE";
+        String sortColumn = "sr.REQUEST_AT"; // 기본값
+        if ("title".equalsIgnoreCase(sortBy)) sortColumn = "sr.REQUEST_SONG_TITLE";
 
         String orderDirection = "DESC".equalsIgnoreCase(sortOrder) ? "DESC" : "ASC";
 
@@ -77,23 +77,23 @@ public class SongRequestRepository {
     // 2. 내가 관리하는 요청 검색 (세션 기반)
     public List<SongRequestViewDto> getManagingSongRequests(HttpSession session) {
         // 세션에서 관리자 ID 추출
-        Long managerId = (Long) session.getAttribute("managerId");
+        Long managerId = (Long) session.getAttribute("manager_id");
 
         if (managerId == null) {
             return List.of(); // 혹은 예외 발생
         }
 
-        String sql = "SELECT REQUEST_ID, TITLE, ARTIST_ID, USER_ID, CREATED_AT " +
+        String sql = "SELECT REQUEST_ID, REQUEST_SONG_TITLE, REQUEST_SONG_ARTIST, USER_ID, REQUEST_AT " +
                 "FROM SONG_REQUESTS " +
                 "WHERE MANAGER_ID = ? " +
-                "ORDER BY CREATED_AT DESC";
+                "ORDER BY REQUEST_AT DESC";
 
         return jdbcTemplate.query(sql, requestMapper, managerId);
     }
 
     // 3. 단건 조회 (삭제 시 반환용)
     public SongRequestViewDto getRequestById(long id) {
-        String sql = "SELECT REQUEST_ID, TITLE, ARTIST_ID, USER_ID, CREATED_AT FROM SONG_REQUESTS WHERE REQUEST_ID = ?";
+        String sql = "SELECT REQUEST_ID, REQUEST_SONG_TITLE, REQUEST_SONG_ARTIST, USER_ID, REQUEST_AT FROM SONG_REQUESTS WHERE REQUEST_ID = ?";
         try {
             return jdbcTemplate.queryForObject(sql, requestMapper, id);
         } catch (EmptyResultDataAccessException e) {
