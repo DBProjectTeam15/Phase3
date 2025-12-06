@@ -3,7 +3,7 @@ package knu.database.musicbase.controller;
 import jakarta.servlet.http.HttpSession;
 import knu.database.musicbase.dto.CommentDto;
 import knu.database.musicbase.dto.UserDto;
-import knu.database.musicbase.repository.CommentRepository;
+import knu.database.musicbase.dao.CommentDao;
 import knu.database.musicbase.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,7 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommentController {
 
-    private final CommentRepository commentRepository;
+    private final CommentDao commentDao;
     private final AuthService authService;
 
     // 1. 내가 작성한 댓글 보기
@@ -29,11 +29,11 @@ public class CommentController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        return ResponseEntity.ok(commentRepository.findCommentsByUserId(userDto.getId()));
+        return ResponseEntity.ok(commentDao.findCommentsByUserId(userDto.getId()));
     }
 
     @GetMapping("/playlists/{playlistId}")
     public List<CommentDto> getPlaylistComments(@PathVariable long playlistId) {
-        return commentRepository.findCommentsByPlaylistId(playlistId);
+        return commentDao.findCommentsByPlaylistId(playlistId);
     }
 }
